@@ -1,17 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 typedef struct cel
 {
   char nome[30];
   struct cel *prox;
-  int indice;
 } celula;
 
-
- celula *cabeca = NULL;
-int indice = 1;
-
+celula *cabeca = NULL;
 
 void imprimir(celula *aux)
 {
@@ -29,13 +26,9 @@ void inserir(celula **ptr_cabeca)
   printf("Digite o nome do produto: ");
   scanf("%30[^\n]s", nova->nome);
 
-  nova->indice = indice;
-
   nova->prox = *ptr_cabeca;
 
   *ptr_cabeca = nova;
-
-  printf("indice=%d", indice);
 }
 
 // void swap(celula *a, celula *b)
@@ -46,34 +39,152 @@ void inserir(celula **ptr_cabeca)
 //   strcpy(b->nome, temp);
 // }
 
-void swap(celula *aux){
-  celula *temp=aux->prox;
-  aux->prox=temp->prox;
-  temp->prox=aux;
-
-  if(aux==cabeca){
-    cabeca=temp;
-
-  }else{
-    celula *ant=cabeca;
-    while(ant->prox!=aux){
-      ant=ant->prox;
-    }
-    ant->prox=temp;
+int length(celula *cabeca)
+{
+  celula *aux = cabeca;
+  int cont = 0;
+  while (aux != NULL)
+  {
+    aux = aux->prox;
+    cont++;
   }
-
+  return cont;
 }
 
+celula *pos(int p)
+{
+  celula *aux = cabeca;
+  int cont = 0;
+  while (aux != NULL)
+  {
+    if (cont == p)
+    {
+      return aux;
+    }
+    aux = aux->prox;
+    cont++;
+  }
+  return NULL;
+}
+
+celula *prev(celula *referencia)
+{
+  if (referencia == NULL || referencia == cabeca)
+    return NULL;
+  celula *aux = cabeca;
+  while (aux != NULL)
+  {
+    if (aux->prox == referencia)
+    {
+      return aux;
+    }
+    aux = aux->prox;
+  }
+  return NULL;
+}
+
+void troca_pos(celula *cel1, celula *cel2)
+{
+  if ((cel1 == NULL) || (cel2 == NULL))
+    return;
+
+  celula *ant1 = NULL;
+  celula *ant2 = NULL;
+
+  celula *tmp = NULL;
+
+  if ((cabeca == cel2) || (cel2->prox == cel1))
+  {
+    tmp = cel2;
+    cel2 = cel1;
+    cel1 = tmp;
+  }
+
+  if (cabeca != cel1)
+  {
+    ant1 = prev(cel1);
+  }
+
+  ant2 = prev(cel2);
+
+  if (cel1 != cel2)
+  {
+    tmp = cel2->prox;
+
+    if (ant1 != NULL)
+    {
+      ant1->prox = cel2;
+    }
+
+    if (cel1 != ant2)
+    {
+      ant2->prox = cel1;
+      cel2->prox = cel1->prox;
+
+      if (cel2->prox == cel1)
+      {
+        cel1->prox = cel2;
+      }
+      else
+      {
+        cel1->prox = tmp;
+      }
+    }
+    else
+    {
+      cel2->prox = cel1;
+      cel1->prox = tmp;
+    }
+
+    if (cabeca == cel1)
+    {
+      cabeca = cel2;
+    }
+  }
+}
+
+void shuffle()
+{
+  int size = length(cabeca);
+  for (int i = 0; i < size; i++)
+  {
+    celula *cel1 = pos(rand() % size);
+    celula *cel2 = pos(rand() % size);
+    troca_pos(cel1, cel2);
+  }
+}
+
+void swap(celula *aux)
+{
+  celula *temp = aux->prox;
+  aux->prox = temp->prox;
+  temp->prox = aux;
+
+  if (aux == cabeca)
+  {
+    cabeca = temp;
+  }
+  else
+  {
+    celula *ant = cabeca;
+    while (ant->prox != aux)
+    {
+      ant = ant->prox;
+    }
+    ant->prox = temp;
+  }
+}
 
 void bubble()
 {
   int cont_troca;
-  celula *aux=NULL;
+  celula *aux = NULL;
   celula *ultimo_no = NULL;
 
-  if (cabeca == NULL||cabeca->prox==NULL)
-{    return;
-}
+  if (cabeca == NULL || cabeca->prox == NULL)
+  {
+    return;
+  }
   do
   {
     cont_troca = 0;
@@ -84,27 +195,47 @@ void bubble()
       {
         swap(aux);
         cont_troca = 1;
-      }else{
-      aux = aux->prox;}
+      }
+      else
+      {
+        aux = aux->prox;
+      }
     }
     ultimo_no = aux;
-  } while (cont_troca!=0);
+  } while (cont_troca != 0);
 }
 
-// void insert(celula *cabeca){
-// celula *lista=NULL;
-// celula *aux=cabeca;
-// while (aux!=NULL)
-// {
-//   celula *prox=aux->prox;
-// if(lista==NULL ||  (strcmp(lista->nome, aux->nome) > 0)){
-//   aux->prox=lista;
-//   lista=aux;
-// }
-// }
+void selection_sort()
+{
+  if (cabeca == NULL || cabeca->prox == NULL)
+  {
+    return;
+  }
+  celula *inserir = cabeca;
+  celula *menor;
+  celula *aux = menor->prox;
 
+  while (inserir->prox != NULL)
+  {
+    menor = inserir;
+    aux = inserir->prox;
 
-
+    while (aux != NULL)
+    {
+      if (strcmp(menor->nome, aux->nome) > 0)
+      {
+        menor = aux;
+      }
+      aux = aux->prox;
+    }
+    if (menor != inserir)
+    {
+      troca_pos(inserir, menor);
+      inserir = menor;
+    }
+    inserir = inserir->prox;
+  }
+}
 
 void imprimir_menu()
 {
@@ -112,13 +243,63 @@ void imprimir_menu()
   printf("*******\t\tMENU\t********\n");
   printf("*\t1 - Inserir nome\t*\n");
   printf("*\t2 - Imprimir \t*\n");
-   printf("*\t3 - Bubble sort \t*\n");
+  printf("*\t3 - Bubble sort \t*\n");
+  printf("*\t4 - Selection sort \t*\n");
+  printf("*\t5 - Insertion sort \t*\n");
+  printf("*\t6 - Shuffle \t*\n");
   printf("*\t0 - Sair\t\t*\n");
+}
+
+void troca_insertion(celula *aux, celula *troca, celula *proximo, celula *anterior)
+{
+  if (aux == cabeca)
+  {
+    troca->prox = cabeca;
+    cabeca = troca;
+    anterior->prox = proximo;
+  }
+  else
+  {
+    troca->prox = aux;
+    anterior->prox = proximo;
+    anterior = prev(aux);
+    if (anterior != NULL)
+    {
+      anterior->prox = troca;
+    }
+  }
+}
+
+void insertion_sort()
+{
+  if (cabeca == NULL || cabeca->prox == NULL)
+    return;
+  celula *troca = cabeca->prox;
+  celula *anterior = prev(troca);
+  celula *aux = cabeca;
+  celula *proximo = troca->prox;
+
+  while (troca != NULL)
+  {
+    while (aux != troca)
+    {
+      if (strcmp(aux->nome, troca->nome) > 0)
+      {
+        troca_insertion(aux, troca, proximo, anterior);
+        break;
+      }
+      aux = aux->prox;
+    }
+    troca = proximo;
+    aux = cabeca;
+    anterior = prev(troca);
+    if (troca != NULL)
+      proximo = troca->prox;
+  }
 }
 
 int main()
 {
- 
 
   int opc = 1;
   while (opc != 0)
@@ -130,7 +311,6 @@ int main()
     {
     case 1:
       inserir(&cabeca);
-      indice++;
       break;
 
     case 2:
@@ -138,15 +318,25 @@ int main()
       break;
 
     case 3:
-    printf("Lista antes=\n");
-    imprimir(cabeca);
+      printf("Lista antes=\n");
+      imprimir(cabeca);
       bubble();
-        printf("Lista depois=\n");
-    imprimir(cabeca);
+      printf("Lista depois=\n");
+      imprimir(cabeca);
       break;
 
-      //   case 0:
-      //     break;
+    case 4:
+      selection_sort();
+      imprimir(cabeca);
+    case 5:
+      insertion_sort();
+      break;
+    case 6:
+      shuffle();
+      break;
+
+    case 0:
+      break;
 
     default:
       printf("Opção inválida\n");
@@ -160,40 +350,3 @@ int main()
 
   return 0;
 }
-
-
-// void insertionSort(Node **head_ref) {
-//     Node *sorted = NULL;
-//     Node *current = *head_ref;
-
-//     while (current != NULL) {
-//         Node *next = current->next;
-
-//         if (sorted == NULL || sorted->data >= current->data) {
-//             current->next = sorted;
-//             sorted = current;
-//         } else {
-//             Node *temp = sorted;
-//             while (temp->next != NULL && temp->next->data < current->data) {
-//                 temp = temp->next;
-//             }
-//             current->next = temp->next;
-//             temp->next = current;
-//         }
-
-//         current = next;
-//     }
-
-//     *head_ref = sorted;
-// }
-// Explicação do código:
-
-// Inicializa um nó sorted que armazenará a lista ordenada.
-// Inicializa um ponteiro current que percorrerá a lista encadeada original.
-// Percorre a lista encadeada original usando um loop while, que termina quando todos os nós foram percorridos.
-// Armazena o próximo nó em uma variável temporária next, para evitar perda de referência.
-// Verifica se o nó atual é menor ou igual ao primeiro nó da lista ordenada (ou se a lista ordenada é vazia). Se sim, o nó atual é inserido no início da lista ordenada. Se não, procura a posição correta para inserir o nó atual.
-// Percorre a lista ordenada usando um loop while para encontrar o nó anterior à posição de inserção.
-// Insere o nó atual na posição correta atualizando os ponteiros dos nós.
-// Atualiza o ponteiro current para o próximo nó da lista original.
-// Atualiza o ponteiro do cabeçalho da lista encadeada para a lista ordenada.
