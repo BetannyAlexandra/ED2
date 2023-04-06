@@ -7,11 +7,16 @@ typedef struct cel
   char nome[30];
   struct cel *prox;
 } celula;
-
-celula *cabeca = NULL;
-
-void imprimir(celula *aux)
+typedef struct lista
 {
+  celula *cabeca = NULL;
+  celula *fim = NULL;
+  int tamanho = 0;
+} lista;
+void imprimir(lista *lista1)
+{
+  celula *aux = lista1->cabeca;
+
   while (aux != NULL)
   {
     printf("%s -> ", aux->nome);
@@ -19,18 +24,62 @@ void imprimir(celula *aux)
   }
   printf("NULL\n");
 }
-
-void inserir(celula **ptr_cabeca)
+celula *nova_celula()
 {
-  celula *nova = (celula *)malloc(sizeof(celula));
+  celula *Novo = new celula;
   printf("Digite o nome do produto: ");
-  scanf("%30[^\n]s", nova->nome);
-
-  nova->prox = *ptr_cabeca;
-
-  *ptr_cabeca = nova;
+  scanf("%30[^\n]s", Novo->nome);
+  return Novo;
 }
-
+void inserir_inicio(lista *lista1, celula *Novo)
+{
+  if (lista1 == NULL || Novo == NULL)
+    return;
+  if (lista1->tamanho == 0)
+  {
+    lista1->cabeca = Novo;
+    lista1->fim = Novo;
+    lista1->tamanho = 1;
+    Novo->prox = NULL;
+    return;
+  }
+  Novo->prox = lista1->cabeca;
+  lista1->cabeca = Novo;
+  lista1->tamanho++;
+}
+void anexar_inicio(lista *lista1, lista *nova)
+{
+  if ((lista1 == NULL) || (nova == NULL) || (nova->tamanho == 0))
+    return;
+  lista1->tamanho += nova->tamanho;
+  nova->fim->prox = lista1->cabeca;
+  lista1->cabeca = nova->cabeca;
+}
+void anexar_fim(lista *lista1, lista *nova)
+{
+  if ((lista1 == NULL) || (nova == NULL) || (nova->tamanho == 0))
+    return;
+  lista1->tamanho += nova->tamanho;
+  lista1->fim->prox = nova->cabeca;
+  lista1->fim = nova->fim;
+}
+void inserir_fim(lista *lista1, celula *nova)
+{
+  if ((lista1 == NULL) || (nova == NULL))
+    return;
+  if (lista1->tamanho == 0)
+  {
+    lista1->cabeca = nova;
+    lista1->fim = nova;
+    lista1->tamanho = 1;
+    nova->prox = NULL;
+    return;
+  }
+  nova->prox = NULL;
+  lista1->fim->prox = nova;
+  lista1->fim = nova;
+  lista1->tamanho += 1;
+}
 // void swap(celula *a, celula *b)
 // {
 //   char temp[30];
@@ -38,7 +87,55 @@ void inserir(celula **ptr_cabeca)
 //   strcpy(a->nome, b->nome);
 //   strcpy(b->nome, temp);
 // }
+celula *prev(lista *lista1, celula *referencia)
+{
+  if (referencia == NULL || referencia == lista1->cabeca || (lista1 == NULL))
+    return NULL;
+  celula *aux = lista1->cabeca;
+  while (aux != NULL)
+  {
+    if (aux->prox == referencia)
+    {
+      return aux;
+    }
+    aux = aux->prox;
+  }
+  return NULL;
+}
+void remover(lista *lista1, celula *elemento)
+{
+  if ((lista1 == NULL) || (elemento == NULL) || (lista1->tamanho == 0))
+    return;
+  if ((lista1->cabeca == elemento) && (lista1->fim == elemento))
+  {
+    lista1->tamanho = 0;
+    lista1->cabeca = NULL;
+    lista1->fim = NULL;
+    return;
+  }
+  lista1->tamanho--;
+  if (lista1->cabeca == elemento)
+  {
+    lista1->cabeca = lista1->cabeca->prox;
+    elemento->prox = NULL;
+    return;
+  }
+  if (lista1->fim == elemento)
+  {
+    lista1->fim = prev(lista1, elemento);
+    lista1->fim->prox = NULL;
+    return;
+  }
+  celula *ant_elem = prev(lista1, elemento);
+  celula *prox_elem = elemento->prox;
 
+  if (ant_elem != NULL)
+  {
+
+    ant_elem->prox = prox_elem;
+  }
+  elemento->prox = NULL;
+}
 int length(celula *cabeca)
 {
   celula *aux = cabeca;
@@ -51,13 +148,13 @@ int length(celula *cabeca)
   return cont;
 }
 
-celula *pos(int p)
+celula *pos(lista *lista1, int pos)
 {
-  celula *aux = cabeca;
+  celula *aux = lista1->cabeca;
   int cont = 0;
   while (aux != NULL)
   {
-    if (cont == p)
+    if (cont == pos)
     {
       return aux;
     }
@@ -67,24 +164,9 @@ celula *pos(int p)
   return NULL;
 }
 
-celula *prev(celula *referencia)
+void troca_pos(lista *lista1, celula *cel1, celula *cel2)
 {
-  if (referencia == NULL || referencia == cabeca)
-    return NULL;
-  celula *aux = cabeca;
-  while (aux != NULL)
-  {
-    if (aux->prox == referencia)
-    {
-      return aux;
-    }
-    aux = aux->prox;
-  }
-  return NULL;
-}
 
-void troca_pos(celula *cel1, celula *cel2)
-{
   if ((cel1 == NULL) || (cel2 == NULL))
     return;
 
@@ -93,19 +175,28 @@ void troca_pos(celula *cel1, celula *cel2)
 
   celula *tmp = NULL;
 
-  if ((cabeca == cel2) || (cel2->prox == cel1))
+  if (cel1 == lista1->fim)
+  {
+    lista1->fim = cel2;
+  }
+  else if (cel2 == lista1->fim)
+  {
+    lista1->fim = cel1;
+  }
+
+  if ((lista1->cabeca == cel2) || (cel2->prox == cel1))
   {
     tmp = cel2;
     cel2 = cel1;
     cel1 = tmp;
   }
 
-  if (cabeca != cel1)
+  if (lista1->cabeca != cel1)
   {
-    ant1 = prev(cel1);
+    ant1 = prev(lista1, cel1);
   }
 
-  ant2 = prev(cel2);
+  ant2 = prev(lista1, cel2);
 
   if (cel1 != cel2)
   {
@@ -136,37 +227,37 @@ void troca_pos(celula *cel1, celula *cel2)
       cel1->prox = tmp;
     }
 
-    if (cabeca == cel1)
+    if (lista1->cabeca == cel1)
     {
-      cabeca = cel2;
+      lista1->cabeca = cel2;
     }
   }
 }
 
-void shuffle()
+void shuffle(lista *lista1)
 {
-  int size = length(cabeca);
+  int size = length(lista1->cabeca);
   for (int i = 0; i < size; i++)
   {
-    celula *cel1 = pos(rand() % size);
-    celula *cel2 = pos(rand() % size);
-    troca_pos(cel1, cel2);
+    celula *cel1 = pos(lista1, rand() % size);
+    celula *cel2 = pos(lista1, rand() % size);
+    troca_pos(lista1, cel1, cel2);
   }
 }
 
-void swap(celula *aux)
+void swap(lista *lista1, celula *aux)
 {
   celula *temp = aux->prox;
   aux->prox = temp->prox;
   temp->prox = aux;
 
-  if (aux == cabeca)
+  if (aux == lista1->cabeca)
   {
-    cabeca = temp;
+    lista1->cabeca = temp;
   }
   else
   {
-    celula *ant = cabeca;
+    celula *ant = lista1->cabeca;
     while (ant->prox != aux)
     {
       ant = ant->prox;
@@ -175,25 +266,25 @@ void swap(celula *aux)
   }
 }
 
-void bubble()
+void bubble(lista *lista1)
 {
   int cont_troca;
   celula *aux = NULL;
   celula *ultimo_no = NULL;
 
-  if (cabeca == NULL || cabeca->prox == NULL)
+  if (lista1->cabeca == NULL || lista1->cabeca->prox == NULL)
   {
     return;
   }
   do
   {
     cont_troca = 0;
-    aux = cabeca;
+    aux = lista1->cabeca;
     while (aux->prox != ultimo_no)
     {
       if (strcmp(aux->nome, aux->prox->nome) > 0)
       {
-        swap(aux);
+        swap(lista1, aux);
         cont_troca = 1;
       }
       else
@@ -205,13 +296,13 @@ void bubble()
   } while (cont_troca != 0);
 }
 
-void selection_sort()
+void selection_sort(lista *lista1)
 {
-  if (cabeca == NULL || cabeca->prox == NULL)
+  if (lista1->cabeca == NULL || lista1->cabeca->prox == NULL)
   {
     return;
   }
-  celula *inserir = cabeca;
+  celula *inserir = lista1->cabeca;
   celula *menor;
   celula *aux = menor->prox;
 
@@ -230,7 +321,7 @@ void selection_sort()
     }
     if (menor != inserir)
     {
-      troca_pos(inserir, menor);
+      troca_pos(lista1, inserir, menor);
       inserir = menor;
     }
     inserir = inserir->prox;
@@ -247,22 +338,23 @@ void imprimir_menu()
   printf("*\t4 - Selection sort \t*\n");
   printf("*\t5 - Insertion sort \t*\n");
   printf("*\t6 - Shuffle \t*\n");
+  printf("*\t7 - Merge sort \t*\n");
   printf("*\t0 - Sair\t\t*\n");
 }
 
-void troca_insertion(celula *aux, celula *troca, celula *proximo, celula *anterior)
+void troca_insertion(lista *lista1, celula *aux, celula *troca, celula *proximo, celula *anterior)
 {
-  if (aux == cabeca)
+  if (aux == lista1->cabeca)
   {
-    troca->prox = cabeca;
-    cabeca = troca;
+    troca->prox = lista1->cabeca;
+    lista1->cabeca = troca;
     anterior->prox = proximo;
   }
   else
   {
     troca->prox = aux;
     anterior->prox = proximo;
-    anterior = prev(aux);
+    anterior = prev(lista1, aux);
     if (anterior != NULL)
     {
       anterior->prox = troca;
@@ -270,13 +362,13 @@ void troca_insertion(celula *aux, celula *troca, celula *proximo, celula *anteri
   }
 }
 
-void insertion_sort()
+void insertion_sort(lista *lista1)
 {
-  if (cabeca == NULL || cabeca->prox == NULL)
+  if (lista1->cabeca == NULL || lista1->cabeca->prox == NULL)
     return;
-  celula *troca = cabeca->prox;
-  celula *anterior = prev(troca);
-  celula *aux = cabeca;
+  celula *troca = lista1->cabeca->prox;
+  celula *anterior = prev(lista1, troca);
+  celula *aux = lista1->cabeca;
   celula *proximo = troca->prox;
 
   while (troca != NULL)
@@ -285,22 +377,168 @@ void insertion_sort()
     {
       if (strcmp(aux->nome, troca->nome) > 0)
       {
-        troca_insertion(aux, troca, proximo, anterior);
+        troca_insertion(lista1, aux, troca, proximo, anterior);
         break;
       }
       aux = aux->prox;
     }
     troca = proximo;
-    aux = cabeca;
-    anterior = prev(troca);
+    aux = lista1->cabeca;
+    anterior = prev(lista1, troca);
     if (troca != NULL)
       proximo = troca->prox;
   }
 }
+lista *merge(lista *lista1, lista *lista2)
+{
+  if ((lista1 == NULL) && (lista2 == NULL))
+  {
+    return NULL;
+  }
+
+  if ((lista1 != NULL) && (lista2 == NULL))
+  {
+    return lista1;
+  }
+
+  if ((lista1 == NULL) && (lista2 != NULL))
+  {
+    return lista2;
+  }
+
+  lista *nova = new lista;
+
+  while ((lista1->tamanho > 0) && (lista2->tamanho > 0))
+  {
+    celula *valor1 = lista1->cabeca;
+    celula *valor2 = lista2->cabeca;
+    celula *elemento;
+    if (strcmp(valor2->nome, valor1->nome) > 0)
+    {
+      elemento = lista1->cabeca;
+      remover(lista1, elemento);
+    }
+    else
+    {
+      elemento = lista2->cabeca;
+      remover(lista2, elemento);
+    }
+    inserir_fim(nova, elemento);
+  }
+  if (lista1->tamanho > 0)
+  {
+    anexar_fim(nova, lista1);
+  }
+
+  if (lista2->tamanho > 0)
+  {
+    anexar_fim(nova, lista2);
+  }
+
+  return nova;
+}
+
+lista *mergesort(lista *lista1)
+{
+
+  if ((lista1 == NULL) || (lista1->tamanho == 0))
+  {
+    return NULL;
+  }
+
+  if (lista1->tamanho == 1)
+  {
+    return lista1;
+  }
+
+  lista *lista2 = new lista;
+  int tam_metade = lista1->tamanho / 2;
+  celula *inicio2 = lista1->cabeca;
+  for (int i = 0; i < tam_metade; i++)
+  {
+    inicio2 = inicio2->prox;
+  }
+
+  celula *fim1 = prev(lista1, inicio2);
+  fim1->prox = NULL;
+
+  lista2->cabeca = inicio2;
+  lista2->fim = lista1->fim;
+
+  lista2->fim = lista1->fim;
+  lista2->tamanho = lista1->tamanho - tam_metade;
+
+  lista1->fim = fim1;
+  lista1->tamanho = tam_metade;
+
+  lista1 = mergesort(lista1);
+  lista2 = mergesort(lista2);
+
+  lista *resultante = merge(lista1, lista2);
+
+  return resultante;
+}
+
+// void gerar_aleatorios(lista *lst, int qnt)
+// {
+//   celula *elem;
+//   for (int i = 0; i < qnt; i++)
+//   {
+//     elem = new celula;
+//     elem->nome =(char)( rand() % 10);
+//     inserir_inicio(lst, elem);
+//   }
+// }
+
+void quickSort(lista *lista1)
+{
+  if ((lista1 == NULL) || (lista1->tamanho <= 1))
+  {
+    return;
+  }
+  int metade = lista1->tamanho / 2;
+  celula *pivo = lista1->cabeca;
+  for (int i = 0; i < metade; i++)
+  {
+    pivo = pivo->prox;
+  }
+  lista menores;
+  lista maiores;
+
+  celula *aux = lista1->cabeca;
+  celula *elemento = NULL;
+
+  while (aux != NULL)
+  {
+    elemento = aux;
+    aux = aux->prox;
+    if (elemento == pivo)
+    {
+      continue;
+    }
+    remover(lista1, elemento);
+    if (strcmp(pivo->nome, elemento->nome) > 0)
+    {
+      inserir_inicio(&menores, elemento);
+    }
+    else
+    {
+      inserir_inicio(&maiores, elemento);
+    }
+  }
+  quickSort(&menores);
+  anexar_inicio(lista1, &menores);
+  quickSort(&maiores);
+  anexar_fim(lista1, &maiores);
+}
 
 int main()
 {
+  lista *cabeca = new lista;
+  srand(time(NULL));
 
+  lista *nova = new lista;
+  nova = NULL;
   int opc = 1;
   while (opc != 0)
   {
@@ -310,7 +548,7 @@ int main()
     switch (opc)
     {
     case 1:
-      inserir(&cabeca);
+      inserir_inicio(cabeca, nova_celula());
       break;
 
     case 2:
@@ -320,20 +558,31 @@ int main()
     case 3:
       printf("Lista antes=\n");
       imprimir(cabeca);
-      bubble();
+      bubble(cabeca);
       printf("Lista depois=\n");
       imprimir(cabeca);
       break;
 
     case 4:
-      selection_sort();
+      selection_sort(cabeca);
       imprimir(cabeca);
     case 5:
-      insertion_sort();
+      insertion_sort(cabeca);
       break;
     case 6:
-      shuffle();
+      shuffle(cabeca);
       break;
+    case 7:
+      // gerar_aleatorios(cabeca, 10);
+      imprimir(cabeca);
+      nova = mergesort(cabeca);
+      imprimir(nova);
+      break;
+    case 8:
+    imprimir(cabeca);
+    quickSort(cabeca);
+    imprimir(cabeca);
+    break;
 
     case 0:
       break;
@@ -344,8 +593,7 @@ int main()
     }
   }
 
-  inserir(&cabeca);
-
+  inserir_inicio(cabeca, nova_celula());
   imprimir(cabeca);
 
   return 0;

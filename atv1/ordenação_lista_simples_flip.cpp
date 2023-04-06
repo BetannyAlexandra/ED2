@@ -7,6 +7,8 @@ typedef struct No
 {
     char nome[50];
     struct No *proximo;
+    struct No *ant;
+    
 } No;
 
 No *cabeca = NULL;
@@ -43,21 +45,21 @@ void menu()
     printf("6 - Ordenar por Insertion Sort\n");
     printf("0 - Sair\n");
 }
-No *prev(No *referencia)
-{
-    if (referencia == NULL || referencia == cabeca)
-        return NULL;
-    No *aux = cabeca;
-    while (aux != NULL)
-    {
-        if (aux->proximo == referencia)
-        {
-            return aux;
-        }
-        aux = aux->proximo;
-    }
-    return NULL;
-}
+// No *prev(No *referencia)
+// {
+//     if (referencia == NULL || referencia == cabeca)
+//         return NULL;
+//     No *aux = cabeca;
+//     while (aux != NULL)
+//     {
+//         if (aux->proximo == referencia)
+//         {
+//             return aux;
+//         }
+//         aux = aux->proximo;
+//     }
+//     return NULL;
+// }
 void troca_insertion(No *aux, No *troca, No *proximo, No *anterior)
 {
     if (aux == cabeca)
@@ -70,7 +72,7 @@ void troca_insertion(No *aux, No *troca, No *proximo, No *anterior)
     {
         troca->proximo = aux;
         anterior->proximo = proximo;
-        anterior = prev(aux);
+        anterior = aux->ant;
         if (anterior != NULL)
         {
             anterior->proximo = troca;
