@@ -389,6 +389,8 @@ lista *merge_sort(lista *lista1)
 
   // cria uma nova lista para receber a metade da antuga lista.
   // o tamanho da nova lista vai ser igual ao tamanho da antiga dividido por dois. A nova lista vai receber o cabeca da primeira lista e vai atualizar os ponteiros recebendo os elementos da antiga lista enquando i for menor que a metade.Dessa forma, a lista 2 vai ter metaade dos elementos da lista 1;
+
+  
   lista *lista2 = new lista;
 
   int tam_metade = lista1->tamanho / 2;
