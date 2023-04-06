@@ -45,59 +45,59 @@ celula *novo_elemento()
   return nova;
 }
 
-void inserir_fim(lista *lst, celula *elemento)
+void inserir_fim(lista *lista1, celula *elemento)
 {
-  if ((lst == NULL) || (elemento == NULL))
+  if ((lista1 == NULL) || (elemento == NULL))
   {
     return;
   }
 
-  if (lst->tamanho == 0)
+  if (lista1->tamanho == 0)
   {
-    lst->cabeca = elemento;
-    lst->fim = elemento;
-    lst->tamanho = 1;
+    lista1->cabeca = elemento;
+    lista1->fim = elemento;
+    lista1->tamanho = 1;
     elemento->ant = NULL;
     elemento->prox = NULL;
     return;
   }
   // proximo do novo elemento vai ser nulo, o anterior dele vai ser o fim da antiga lista, e o proximo do fim da antiga lista vai ser o novo elemento. O tamanho da lista é incrementado.
   elemento->prox = NULL;
-  elemento->ant = lst->fim;
-  lst->fim->prox = elemento;
-  lst->fim = elemento;
-  lst->tamanho++;
+  elemento->ant = lista1->fim;
+  lista1->fim->prox = elemento;
+  lista1->fim = elemento;
+  lista1->tamanho++;
 }
 
-void remover(lista *lst, celula *elemento)
+void remover(lista *lista1, celula *elemento)
 {
-  if ((lst == NULL) || (elemento == NULL) || (lst->tamanho == 0))
+  if ((lista1 == NULL) || (elemento == NULL) || (lista1->tamanho == 0))
   {
     return;
   }
 
-  if ((lst->cabeca == elemento) && (lst->fim == elemento))
+  if ((lista1->cabeca == elemento) && (lista1->fim == elemento))
   {
-    lst->tamanho = 0;
-    lst->cabeca = NULL;
-    lst->fim = NULL;
+    lista1->tamanho = 0;
+    lista1->cabeca = NULL;
+    lista1->fim = NULL;
     return;
   }
 
-  lst->tamanho--;
+  lista1->tamanho--;
 
-  if (lst->cabeca == elemento)
+  if (lista1->cabeca == elemento)
   {
-    lst->cabeca = lst->cabeca->prox;
-    lst->cabeca->ant = NULL;
+    lista1->cabeca = lista1->cabeca->prox;
+    lista1->cabeca->ant = NULL;
     elemento->prox = NULL;
     return;
   }
 
-  if (lst->fim == elemento)
+  if (lista1->fim == elemento)
   {
-    lst->fim = lst->fim->ant;
-    lst->fim->prox = NULL;
+    lista1->fim = lista1->fim->ant;
+    lista1->fim->prox = NULL;
     elemento->ant = NULL;
     return;
   }
@@ -109,6 +109,18 @@ void remover(lista *lst, celula *elemento)
 
   elemento->ant = NULL;
   elemento->prox = NULL;
+}
+
+void anexar_inicio(lista *nova, lista *lista)
+{
+  if ((lista == NULL) || (lista->tamanho == 0))
+  {
+    return;
+  }
+  nova->tamanho += lista->tamanho;
+  nova->cabeca->ant = lista->fim;
+  lista->fim->prox = nova->cabeca;
+  nova->cabeca = lista->cabeca;
 }
 
 void anexar_fim(lista *nova, lista *lista)
@@ -349,7 +361,7 @@ lista *merge(lista *lista1, lista *lista2)
     celula *valor1 = lista1->cabeca;
     celula *valor2 = lista2->cabeca;
     celula *elemento;
-    if (valor1->nome < valor2->nome)
+    if (strcmp(valor1->nome, valor2->nome) > 0)
     {
       elemento = lista1->cabeca;
       remover(lista1, elemento);
@@ -374,7 +386,6 @@ lista *merge(lista *lista1, lista *lista2)
   return nova;
 }
 
-
 lista *merge_sort(lista *lista1)
 {
   if ((lista1 == NULL) || (lista1->tamanho == 0))
@@ -390,7 +401,6 @@ lista *merge_sort(lista *lista1)
   // cria uma nova lista para receber a metade da antuga lista.
   // o tamanho da nova lista vai ser igual ao tamanho da antiga dividido por dois. A nova lista vai receber o cabeca da primeira lista e vai atualizar os ponteiros recebendo os elementos da antiga lista enquando i for menor que a metade.Dessa forma, a lista 2 vai ter metaade dos elementos da lista 1;
 
-  
   lista *lista2 = new lista;
 
   int tam_metade = lista1->tamanho / 2;
@@ -454,6 +464,71 @@ void selection(lista *lista1)
   }
 }
 
+void quick_sort(lista *lista1)
+{
+  if ((lista1 == NULL) || (lista1->tamanho <= 1))
+  {
+    return;
+  }
+
+  int tam_metade = lista1->tamanho / 2;
+  celula *pivo = lista1->cabeca;
+  for (int i = 0; i < tam_metade; i++)
+  {
+    pivo = pivo->prox;
+  }
+  lista menores;
+  lista maiores;
+
+  celula *aux = lista1->cabeca;
+  celula *elemento = NULL;
+  while (aux != NULL)
+  {
+    elemento = aux;
+    aux = aux->prox;
+    if (elemento == pivo)
+    {
+      continue;
+    }
+    remover(lista1, elemento);
+    if (strcmp(elemento->nome, pivo->nome) > 0)
+    {
+      inserirNoInicio(&menores, elemento);
+    }
+    else
+    {
+      inserir_fim(&maiores, elemento);
+    }
+  }
+
+  quick_sort(&menores);
+  anexar_inicio(lista1, &menores);
+
+  quick_sort(&maiores);
+  anexar_fim(lista1, &maiores);
+}
+
+void divide(lista *lista1, lista *lista2)
+{
+  int tam_metade = lista1->tamanho / 2;
+  celula *inicio2 = lista1->cabeca;
+  for (int i = 0; i < tam_metade; i++)
+  {
+    inicio2 = inicio2->prox;
+  }
+
+  celula *fim1 = inicio2->ant;
+  fim1->prox = NULL;
+  inicio2->ant = NULL;
+
+  lista2->cabeca = inicio2;
+  lista2->fim = lista1->fim;
+  lista2->tamanho = lista1->tamanho - tam_metade;
+
+  lista1->fim = fim1;
+  lista1->tamanho = tam_metade;
+}
+
 void imprimir_menu()
 {
   printf("\n\n");
@@ -464,7 +539,7 @@ void imprimir_menu()
   printf("*\t4 - Selection sort \t*\n");
   printf("*\t5 - Insertion sort \t*\n");
   printf("*\t6 - Merge sort \t*\n");
-   printf("*\t7 - Quick sort sort \t*\n");
+  printf("*\t7 - Quick sort sort \t*\n");
   printf("*\t0 - Sair\t\t*\n");
 }
 
@@ -518,16 +593,18 @@ int main()
 
       printf("Lista antes=\n");
       imprimir(cabeca);
-
       merge_sort(cabeca);
       printf("Lista depois=\n");
       imprimir(cabeca);
       break;
 
-      //  case 7:
-      //   merge_sort(cabeca);
-      //       imprimir(cabeca);
-      //  break;
+    case 7:
+      printf("Lista antes=\n");
+      imprimir(cabeca);
+      quick_sort(cabeca);
+      printf("Lista depois=\n");
+      imprimir(cabeca);
+      break;
 
     case 0:
       break;
