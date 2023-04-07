@@ -1,12 +1,11 @@
 
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 typedef struct cel
-{  char nome[30];
+{
+  char nome[30];
   char cpf[12];
   char data[20];
   struct cel *prox;
@@ -24,8 +23,11 @@ void imprimir(lista *lista1)
   while (aux != NULL)
   {
     printf("%s -> ", aux->nome);
+    printf("%s -> ", aux->cpf);
+    printf("%s -> ", aux->data);
     aux = aux->prox;
   }
+
   printf("NULL\n");
 }
 celula *nova_celula()
@@ -34,88 +36,13 @@ celula *nova_celula()
   nova->prox = NULL;
 
   printf("\nCadastro de comprador: ");
-  
+
   printf("\nNome: ");
   scanf("%s", nova->nome);
-   printf("\nCPF: ");
+  printf("\nCPF: ");
   scanf("%s", nova->cpf);
-   printf("\nData do evento: ");
+  printf("\nData do evento: ");
   scanf("%s", nova->data);
-  return nova;
-}
-
-
-void inserir_inicio(lista *lista1, celula *Novo)
-{
-  if (lista1 == NULL || Novo == NULL)
-    return;
-  if (lista1->tamanho == 0)
-  {
-    lista1->cabeca = Novo;
-    lista1->fim = Novo;
-    lista1->tamanho = 1;
-    Novo->prox = NULL;
-    return;
-  }
-  Novo->prox = lista1->cabeca;
-  lista1->cabeca = Novo;
-  lista1->tamanho++;
-}
-
-
-bool cpf_data(lista *lista1,char *cpf,char *data){
-    celula *aux=lista1->cabeca;
-
-
-    while(aux!=NULL){
-        
-
-
-        if((strcmp(aux->cpf,cpf)==0)&&(strcmp(aux->data,data)==0)){
-         return true;
-            }
-      aux=aux->prox;
-    }
-
-}
-
-void buscar_cpf(lista *lista_ingressos,celula *novo_ingresso){
-
-if(lista_ingressos==NULL){
-
-
-    inserir_inicio(lista_ingressos,novo_ingresso);
-
-
-}else{
-    if(cpf_data(lista_ingressos,novo_ingresso->cpf,novo_ingresso->data)==true){
-        printf("Ingresso já existe");
-
-    }else{
-         inserir_inicio(lista_ingressos,novo_ingresso);
-    }
-}
-
-
-}
-
-
-celula *novo_elemento(lista *lista1)
-{
-  celula *nova = new celula;
-  nova->prox = NULL;
-
-  printf("\nCadastro de comprador: ");
-  
-  printf("\nNome: ");
-  scanf("%s", nova->nome);
-   printf("\nCPF: ");
-  scanf("%s", nova->cpf);
-   printf("\nData do evento: ");
-  scanf("%s", nova->data);
-
-buscar_cpf(lista1,novo_elemento(lista1));
-
   return nova;
 }
 void anexar_inicio(lista *lista1, lista *nova)
@@ -134,6 +61,88 @@ void anexar_fim(lista *lista1, lista *nova)
   lista1->fim->prox = nova->cabeca;
   lista1->fim = nova->fim;
 }
+void inserir_inicio(lista *lista1, celula *Novo)
+{
+  if (lista1 == NULL || Novo == NULL)
+    return;
+  if (lista1->tamanho == 0)
+  {
+    lista1->cabeca = Novo;
+    lista1->fim = Novo;
+    lista1->tamanho = 1;
+    Novo->prox = NULL;
+    return;
+  }
+  Novo->prox = lista1->cabeca;
+  lista1->cabeca = Novo;
+  lista1->tamanho++;
+}
+bool cpf_data(lista *lista1, char *cpf, char *data)
+{
+  celula *aux = lista1->cabeca;
+
+  while (aux != NULL)
+  {
+
+    if ((strcmp(aux->cpf, cpf) == 0) && (strcmp(aux->data, data) == 0))
+    {
+      return true;
+    }
+    aux = aux->prox;
+  }
+}
+bool cpf(lista *lista1, celula *ingresso)
+{
+  celula *aux = lista1->cabeca;
+
+  while (aux != NULL)
+  {
+
+    if ((strcmp(aux->cpf, ingresso->cpf) == 0))
+    {
+      return true;
+    }
+    aux = aux->prox;
+  }
+}
+void buscar_cpf(lista *lista_ingressos, celula *novo_ingresso)
+{
+
+  if (lista_ingressos == NULL)
+  {
+
+    inserir_inicio(lista_ingressos, novo_ingresso);
+  }
+  else
+  {
+    if (cpf_data(lista_ingressos, novo_ingresso->cpf, novo_ingresso->data) == true)
+    {
+      printf("Ingresso já existe");
+    }
+    else
+    {
+      inserir_inicio(lista_ingressos, novo_ingresso);
+    }
+  }
+}
+celula *novo_elemento(lista *lista1)
+{
+  celula *nova = new celula;
+  nova->prox = NULL;
+
+  printf("\nCadastro de comprador: ");
+
+  printf("\nNome: ");
+  scanf("%s", nova->nome);
+  printf("\nCPF: ");
+  scanf("%s", nova->cpf);
+  printf("\nData do evento: ");
+  scanf("%s", nova->data);
+
+  buscar_cpf(lista1, novo_elemento(lista1));
+
+  return nova;
+}
 void inserir_fim(lista *lista1, celula *nova)
 {
   if ((lista1 == NULL) || (nova == NULL))
@@ -151,13 +160,6 @@ void inserir_fim(lista *lista1, celula *nova)
   lista1->fim = nova;
   lista1->tamanho += 1;
 }
-// void swap(celula *a, celula *b)
-// {
-//   char temp[30];
-//   strcpy(temp, a->nome);
-//   strcpy(a->nome, b->nome);
-//   strcpy(b->nome, temp);
-// }
 celula *prev(lista *lista1, celula *referencia)
 {
   if (referencia == NULL || referencia == lista1->cabeca || (lista1 == NULL))
@@ -218,7 +220,6 @@ int length(celula *cabeca)
   }
   return cont;
 }
-
 celula *pos(lista *lista1, int pos)
 {
   celula *aux = lista1->cabeca;
@@ -234,7 +235,6 @@ celula *pos(lista *lista1, int pos)
   }
   return NULL;
 }
-
 void troca_pos(lista *lista1, celula *cel1, celula *cel2)
 {
 
@@ -304,7 +304,6 @@ void troca_pos(lista *lista1, celula *cel1, celula *cel2)
     }
   }
 }
-
 void shuffle(lista *lista1)
 {
   int size = length(lista1->cabeca);
@@ -315,90 +314,6 @@ void shuffle(lista *lista1)
     troca_pos(lista1, cel1, cel2);
   }
 }
-
-void swap(lista *lista1, celula *aux)
-{
-  celula *temp = aux->prox;
-  aux->prox = temp->prox;
-  temp->prox = aux;
-
-  if (aux == lista1->cabeca)
-  {
-    lista1->cabeca = temp;
-  }
-  else
-  {
-    celula *ant = lista1->cabeca;
-    while (ant->prox != aux)
-    {
-      ant = ant->prox;
-    }
-    ant->prox = temp;
-  }
-}
-
-void bubble(lista *lista1)
-{
-  int cont_troca;
-  celula *aux = NULL;
-  celula *ultimo_no = NULL;
-
-  if (lista1->cabeca == NULL || lista1->cabeca->prox == NULL)
-  {
-    return;
-  }
-  do
-  {
-    cont_troca = 0;
-    aux = lista1->cabeca;
-    while (aux->prox != ultimo_no)
-    {
-      if (strcmp(aux->nome, aux->prox->nome) > 0)
-      {
-        swap(lista1, aux);
-        cont_troca = 1;
-      }
-      else
-      {
-        aux = aux->prox;
-      }
-    }
-    ultimo_no = aux;
-  } while (cont_troca != 0);
-}
-
-void selection_sort(lista *lista1)
-{
-  if (lista1->cabeca == NULL || lista1->cabeca->prox == NULL)
-  {
-    return;
-  }
-  celula *inserir = lista1->cabeca;
-  celula *menor;
-  celula *aux = menor->prox;
-
-  while (inserir->prox != NULL)
-  {
-    menor = inserir;
-    aux = inserir->prox;
-
-    while (aux != NULL)
-    {
-      if (strcmp(menor->nome, aux->nome) > 0)
-      {
-        menor = aux;
-      }
-      aux = aux->prox;
-    }
-    if (menor != inserir)
-    {
-      troca_pos(lista1, inserir, menor);
-      inserir = menor;
-    }
-    inserir = inserir->prox;
-  }
-}
-
 void imprimir_menu()
 {
   printf("\n\n");
@@ -412,7 +327,6 @@ void imprimir_menu()
   printf("*\t7 - Merge sort \t*\n");
   printf("*\t0 - Sair\t\t*\n");
 }
-
 void troca_insertion(lista *lista1, celula *aux, celula *troca, celula *proximo, celula *anterior)
 {
   if (aux == lista1->cabeca)
@@ -432,7 +346,6 @@ void troca_insertion(lista *lista1, celula *aux, celula *troca, celula *proximo,
     }
   }
 }
-
 void insertion_sort(lista *lista1)
 {
   if (lista1->cabeca == NULL || lista1->cabeca->prox == NULL)
@@ -460,107 +373,24 @@ void insertion_sort(lista *lista1)
       proximo = troca->prox;
   }
 }
-lista *merge(lista *lista1, lista *lista2)
-{
-  if ((lista1 == NULL) && (lista2 == NULL))
-  {
-    return NULL;
-  }
-
-  if ((lista1 != NULL) && (lista2 == NULL))
-  {
-    return lista1;
-  }
-
-  if ((lista1 == NULL) && (lista2 != NULL))
-  {
-    return lista2;
-  }
-
-  lista *nova = new lista;
-
-  while ((lista1->tamanho > 0) && (lista2->tamanho > 0))
-  {
-    celula *valor1 = lista1->cabeca;
-    celula *valor2 = lista2->cabeca;
-    celula *elemento;
-    if (strcmp(valor2->nome, valor1->nome) > 0)
-    {
-      elemento = lista1->cabeca;
-      remover(lista1, elemento);
-    }
-    else
-    {
-      elemento = lista2->cabeca;
-      remover(lista2, elemento);
-    }
-    inserir_fim(nova, elemento);
-  }
-  if (lista1->tamanho > 0)
-  {
-    anexar_fim(nova, lista1);
-  }
-
-  if (lista2->tamanho > 0)
-  {
-    anexar_fim(nova, lista2);
-  }
-
-  return nova;
-}
-
-lista *mergesort(lista *lista1)
+void ordenar_ingressos(lista *lista_ingressos,char *cpf_lista, celula *ingresso)
 {
 
-  if ((lista1 == NULL) || (lista1->tamanho == 0))
+  if (lista_ingressos == NULL)
   {
-    return NULL;
+
+    return;
   }
-
-  if (lista1->tamanho == 1)
-  {
-    return lista1;
+  lista *lista_nova;
+  celula *ingr=lista_ingressos->cabeca;
+while(ingr!=NULL){
+  if(cpf(lista_ingressos,ingresso) == true){
+    inserir_inicio(lista_nova,ingresso);
   }
+}   
+ingr=ingr->prox;
 
-  lista *lista2 = new lista;
-  int tam_metade = lista1->tamanho / 2;
-  celula *inicio2 = lista1->cabeca;
-  for (int i = 0; i < tam_metade; i++)
-  {
-    inicio2 = inicio2->prox;
-  }
-
-  celula *fim1 = prev(lista1, inicio2);
-  fim1->prox = NULL;
-
-  lista2->cabeca = inicio2;
-  lista2->fim = lista1->fim;
-
-  lista2->fim = lista1->fim;
-  lista2->tamanho = lista1->tamanho - tam_metade;
-
-  lista1->fim = fim1;
-  lista1->tamanho = tam_metade;
-
-  lista1 = mergesort(lista1);
-  lista2 = mergesort(lista2);
-
-  lista *resultante = merge(lista1, lista2);
-
-  return resultante;
 }
-
-// void gerar_aleatorios(lista *lst, int qnt)
-// {
-//   celula *elem;
-//   for (int i = 0; i < qnt; i++)
-//   {
-//     elem = new celula;
-//     elem->nome =(char)( rand() % 10);
-//     inserir_inicio(lst, elem);
-//   }
-// }
-
 void quickSort(lista *lista1)
 {
   if ((lista1 == NULL) || (lista1->tamanho <= 1))
@@ -602,13 +432,13 @@ void quickSort(lista *lista1)
   quickSort(&maiores);
   anexar_fim(lista1, &maiores);
 }
-
 int main()
 {
   lista *cabeca = new lista;
+  lista *lista_ingresso = new lista;
+  celula *ingresso = cabeca->cabeca;
   srand(time(NULL));
 
-  lista *nova = new lista;
   nova = NULL;
   int opc = 1;
   while (opc != 0)
@@ -619,7 +449,7 @@ int main()
     switch (opc)
     {
     case 1:
-      buscar_cpf(cabeca,nova_celula());
+      buscar_cpf(cabeca, nova_celula());
       break;
 
     case 2:
@@ -627,33 +457,25 @@ int main()
       break;
 
     case 3:
-      printf("Lista antes=\n");
-      imprimir(cabeca);
-      bubble(cabeca);
-      printf("Lista depois=\n");
-      imprimir(cabeca);
       break;
 
     case 4:
-      selection_sort(cabeca);
-      imprimir(cabeca);
     case 5:
-      insertion_sort(cabeca);
+
+    ordenar_ingressos(cabeca,ingresso->cpf,ingresso);
+    imprimir()
       break;
     case 6:
       shuffle(cabeca);
       break;
     case 7:
-      // gerar_aleatorios(cabeca, 10);
-      imprimir(cabeca);
-      nova = mergesort(cabeca);
-      imprimir(nova);
+
       break;
     case 8:
-    imprimir(cabeca);
-    quickSort(cabeca);
-    imprimir(cabeca);
-    break;
+      imprimir(cabeca);
+      quickSort(cabeca);
+      imprimir(cabeca);
+      break;
 
     case 0:
       break;
