@@ -491,7 +491,7 @@ void quick_sort(lista *lista1)
       continue;
     }
     remover(lista1, elemento);
-    if (strcmp(elemento->nome, pivo->nome) > 0)
+    if (strcmp(elemento->nome, pivo->nome) > 1)
     {
       inserirNoInicio(&menores, elemento);
     }
@@ -577,7 +577,6 @@ int main()
       imprimir(cabeca);
       selection(cabeca);
       printf("Lista depois=\n");
-
       imprimir(cabeca);
     case 5:
 
@@ -593,7 +592,7 @@ int main()
 
       printf("Lista antes=\n");
       imprimir(cabeca);
-      merge_sort(cabeca);
+      cabeca=merge_sort(cabeca);
       printf("Lista depois=\n");
       imprimir(cabeca);
       break;

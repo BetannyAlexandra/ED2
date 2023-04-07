@@ -1,7 +1,6 @@
 {
   "version": "0.2.0",
   "configurations": [
-    
     {
       "name": "C/C++ Runner: Debug Session",
       "type": "cppdbg",
@@ -9,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/world/OneDrive/Área de Trabalho/ED2/lista_dupla",
-      "program": "c:/Users/world/OneDrive/Área de Trabalho/ED2/lista_dupla/build/Debug/outDebug",
+      "cwd": "c:/Users/world/OneDrive/Área de Trabalho/ED2/avaliações",
+      "program": "c:/Users/world/OneDrive/Área de Trabalho/ED2/avaliações/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
