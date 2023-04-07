@@ -93,27 +93,39 @@ bool cpf_data(lista *lista1, char *cpf, char *data)
   return false;
 }
 
+int length(lista *lista1)
+{
+  celula *aux = lista1->cabeca;
+  int cont = 0;
+  while (aux != NULL)
+  {
+    aux = aux->prox;
+    cont++;
+  }
+  return cont;
+}
+
 void data(lista *lista1)
 {
   int cont = 0;
   celula *aux = lista1->cabeca;
-
+lista *contador=new lista;
   while (aux != NULL)
   {
     celula *aux_prox = aux->prox;
-cont =1;
     while (aux_prox != NULL)
     {
       if ((strcmp(aux->data, aux_prox->data) == 0))
       {
-        cont++;
+        inserir_inicio(contador, aux);
+        cont = length(contador);
       }
       aux_prox = aux_prox->prox;
     }
-    aux = aux->prox; 
-    printf("Existem %d eventos na data %s.\n", cont,aux->data);
+    aux = aux->prox;
+
+    printf("Existem %d eventos na data %s.\n", cont, aux->data);
   }
- 
 }
 
 void buscar_cpf(lista *lista_ingressos, celula *novo_ingresso)
@@ -220,17 +232,7 @@ void remover(lista *lista1, celula *elemento)
   }
   elemento->prox = NULL;
 }
-int length(celula *cabeca)
-{
-  celula *aux = cabeca;
-  int cont = 0;
-  while (aux != NULL)
-  {
-    aux = aux->prox;
-    cont++;
-  }
-  return cont;
-}
+
 celula *pos(lista *lista1, int pos)
 {
   celula *aux = lista1->cabeca;
@@ -315,16 +317,7 @@ void troca_pos(lista *lista1, celula *cel1, celula *cel2)
     }
   }
 }
-void shuffle(lista *lista1)
-{
-  int size = length(lista1->cabeca);
-  for (int i = 0; i < size; i++)
-  {
-    celula *cel1 = pos(lista1, rand() % size);
-    celula *cel2 = pos(lista1, rand() % size);
-    troca_pos(lista1, cel1, cel2);
-  }
-}
+
 void imprimir_menu()
 {
   printf("\n\n");
@@ -490,7 +483,7 @@ int main()
       imprimir_pelo_cpf(cabeca, cpf);
       break;
     case 6:
-      shuffle(cabeca);
+   
       break;
     case 7:
 
@@ -510,7 +503,6 @@ int main()
       break;
     }
   }
-
 
   return 0;
 }
