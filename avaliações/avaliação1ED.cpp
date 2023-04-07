@@ -22,9 +22,9 @@ void imprimir(lista *lista1)
 
   while (aux != NULL)
   {
-    printf("%s -> ", aux->nome);
+    printf("||%s -> ", aux->nome);
     printf("%s -> ", aux->cpf);
-    printf("%s -> ", aux->data);
+    printf("%s -> ||", aux->data);
     aux = aux->prox;
   }
 
@@ -90,21 +90,32 @@ bool cpf_data(lista *lista1, char *cpf, char *data)
     }
     aux = aux->prox;
   }
+  return false;
 }
-bool cpf(lista *lista1, celula *ingresso)
+
+void data(lista *lista1)
 {
+  int cont = 0;
   celula *aux = lista1->cabeca;
 
   while (aux != NULL)
   {
-
-    if ((strcmp(aux->cpf, ingresso->cpf) == 0))
+    celula *aux_prox = aux->prox;
+cont =1;
+    while (aux_prox != NULL)
     {
-      return true;
+      if ((strcmp(aux->data, aux_prox->data) == 0))
+      {
+        cont++;
+      }
+      aux_prox = aux_prox->prox;
     }
-    aux = aux->prox;
+    aux = aux->prox; 
+    printf("Existem %d eventos na data %s.\n", cont,aux->data);
   }
+ 
 }
+
 void buscar_cpf(lista *lista_ingressos, celula *novo_ingresso)
 {
 
@@ -359,7 +370,7 @@ void insertion_sort(lista *lista1)
   {
     while (aux != troca)
     {
-      if (strcmp(aux->nome, troca->nome) > 0)
+      if (strcmp(aux->cpf, troca->cpf) > 0)
       {
         troca_insertion(lista1, aux, troca, proximo, anterior);
         break;
@@ -373,7 +384,7 @@ void insertion_sort(lista *lista1)
       proximo = troca->prox;
   }
 }
-void ordenar_ingressos(lista *lista_ingressos,char *cpf_lista, celula *ingresso)
+void imprimir_pelo_cpf(lista *lista_ingressos, char *cpf_2)
 {
 
   if (lista_ingressos == NULL)
@@ -381,16 +392,23 @@ void ordenar_ingressos(lista *lista_ingressos,char *cpf_lista, celula *ingresso)
 
     return;
   }
-  lista *lista_nova;
-  celula *ingr=lista_ingressos->cabeca;
-while(ingr!=NULL){
-  if(cpf(lista_ingressos,ingresso) == true){
-    inserir_inicio(lista_nova,ingresso);
-  }
-}   
-ingr=ingr->prox;
+  celula *aux = lista_ingressos->cabeca;
+  while (aux != NULL)
+  {
 
+    if ((strcmp(aux->cpf, cpf_2) == 0))
+    {
+
+      printf("todos os eventos nesse cpf\n");
+      printf("\n%s -> ", aux->nome);
+      printf("\n%s -> ", aux->cpf);
+      printf("\n%s -> ", aux->data);
+      printf("\n");
+    }
+    aux = aux->prox;
+  }
 }
+
 void quickSort(lista *lista1)
 {
   if ((lista1 == NULL) || (lista1->tamanho <= 1))
@@ -418,7 +436,7 @@ void quickSort(lista *lista1)
       continue;
     }
     remover(lista1, elemento);
-    if (strcmp(pivo->nome, elemento->nome) > 0)
+    if (strcmp(pivo->data, elemento->data) > 0)
     {
       inserir_inicio(&menores, elemento);
     }
@@ -435,11 +453,10 @@ void quickSort(lista *lista1)
 int main()
 {
   lista *cabeca = new lista;
-  lista *lista_ingresso = new lista;
-  celula *ingresso = cabeca->cabeca;
+  char cpf[20];
+
   srand(time(NULL));
 
-  nova = NULL;
   int opc = 1;
   while (opc != 0)
   {
@@ -457,13 +474,20 @@ int main()
       break;
 
     case 3:
+
       break;
 
     case 4:
     case 5:
+      printf("Ingressos oredenados");
+      insertion_sort(cabeca);
+      imprimir(cabeca);
+      printf("\n");
 
-    ordenar_ingressos(cabeca,ingresso->cpf,ingresso);
-    imprimir()
+      printf("Informe o cpf que deseja buscar");
+      scanf("%s", cpf);
+
+      imprimir_pelo_cpf(cabeca, cpf);
       break;
     case 6:
       shuffle(cabeca);
@@ -472,9 +496,10 @@ int main()
 
       break;
     case 8:
-      imprimir(cabeca);
       quickSort(cabeca);
       imprimir(cabeca);
+      data(cabeca);
+
       break;
 
     case 0:
@@ -486,8 +511,6 @@ int main()
     }
   }
 
-  inserir_inicio(cabeca, nova_celula());
-  imprimir(cabeca);
 
   return 0;
 }
