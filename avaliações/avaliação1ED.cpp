@@ -9,6 +9,7 @@ typedef struct cel
   char cpf[12];
   char data[20];
   struct cel *prox;
+  int cont=0;
 } celula;
 typedef struct lista
 {
@@ -16,6 +17,18 @@ typedef struct lista
   celula *fim = NULL;
   int tamanho = 0;
 } lista;
+
+void imprimir_cont(lista *lista1)
+{
+  celula *aux = lista1->cabeca;
+
+  while (aux != NULL)
+  {
+    printf("Existem %d eventos na data %s.\n", aux->cont, aux->data);
+    aux = aux->prox;
+  }
+}
+
 void imprimir(lista *lista1)
 {
   celula *aux = lista1->cabeca;
@@ -105,28 +118,6 @@ int length(lista *lista1)
   return cont;
 }
 
-void data(lista *lista1)
-{
-  
-  celula *aux = lista1->cabeca;
-  
-  while (aux != NULL)
-  {
-    celula *aux_prox = aux->prox;
-   int cont = 1;
-    while ((strcmp(aux->data, aux_prox->data) == 0))
-    {
-      cont++;
-
-      aux_prox = aux_prox->prox;
-
-    }
-      printf("Existem %d eventos na data %s.\n", cont, aux->data);
-      aux = aux_prox;
-
-  }
-}
-
 void buscar_e_inserir_cpf(lista *lista_ingressos, celula *novo_ingresso)
 {
 
@@ -147,24 +138,6 @@ void buscar_e_inserir_cpf(lista *lista_ingressos, celula *novo_ingresso)
     }
   }
 }
-// celula *novo_elemento(lista *lista1)
-// {
-//   celula *nova = new celula;
-//   nova->prox = NULL;
-
-//   printf("\nCadastro de comprador: ");
-
-//   printf("\nNome: ");
-//   scanf("%s", nova->nome);
-//   printf("\nCPF: ");
-//   scanf("%s", nova->cpf);
-//   printf("\nData do evento: ");
-//   scanf("%s", nova->data);
-
-//   buscar_e_inserir_cpf(lista1, novo_elemento(lista1));
-
-//   return nova;
-// }
 void inserir_fim(lista *lista1, celula *nova)
 {
   if ((lista1 == NULL) || (nova == NULL))
@@ -443,6 +416,52 @@ void quickSort(lista *lista1)
   quickSort(&maiores);
   anexar_fim(lista1, &maiores);
 }
+
+void copiar_elemento(lista *lista1, celula *elemento)
+{
+  celula *nova = new celula;
+  strcpy(nova->data, elemento->data);
+  nova->cont = 1;
+  inserir_inicio(lista1, elemento);
+}
+
+void data(lista *lista1)
+{
+
+  celula *aux = lista1->cabeca;
+  lista *datas_contadas = new lista;
+
+
+  while (aux != NULL)
+  {
+    if (datas_contadas == NULL)
+    {
+      copiar_elemento(datas_contadas, aux);
+      aux = aux->prox;
+      continue;
+    }
+    celula *aux_datas = datas_contadas->cabeca;
+    bool existe = false;
+    while (aux_datas != NULL)
+    {
+      if (strcmp(aux_datas->data, aux->data) == 0)
+      {
+        aux_datas->cont++;
+        existe = true;
+        break;
+      }
+
+      aux_datas = aux_datas->prox;
+    }
+    if (!existe)
+    {
+      copiar_elemento(datas_contadas, aux);
+    }
+    aux = aux->prox;
+  }
+  imprimir_cont(datas_contadas);
+}
+
 int main()
 {
   lista *cabeca = new lista;
