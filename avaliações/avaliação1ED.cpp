@@ -107,28 +107,27 @@ int length(lista *lista1)
 
 void data(lista *lista1)
 {
-  int cont = 0;
+  
   celula *aux = lista1->cabeca;
-lista *contador=new lista;
+  
   while (aux != NULL)
   {
     celula *aux_prox = aux->prox;
-    while (aux_prox != NULL)
+   int cont = 1;
+    while ((strcmp(aux->data, aux_prox->data) == 0))
     {
-      if ((strcmp(aux->data, aux_prox->data) == 0))
-      {
-        inserir_inicio(contador, aux);
-        cont = length(contador);
-      }
-      aux_prox = aux_prox->prox;
-    }
-    aux = aux->prox;
+      cont++;
 
-    printf("Existem %d eventos na data %s.\n", cont, aux->data);
+      aux_prox = aux_prox->prox;
+
+    }
+      printf("Existem %d eventos na data %s.\n", cont, aux->data);
+      aux = aux_prox;
+
   }
 }
 
-void buscar_cpf(lista *lista_ingressos, celula *novo_ingresso)
+void buscar_e_inserir_cpf(lista *lista_ingressos, celula *novo_ingresso)
 {
 
   if (lista_ingressos == NULL)
@@ -148,24 +147,24 @@ void buscar_cpf(lista *lista_ingressos, celula *novo_ingresso)
     }
   }
 }
-celula *novo_elemento(lista *lista1)
-{
-  celula *nova = new celula;
-  nova->prox = NULL;
+// celula *novo_elemento(lista *lista1)
+// {
+//   celula *nova = new celula;
+//   nova->prox = NULL;
 
-  printf("\nCadastro de comprador: ");
+//   printf("\nCadastro de comprador: ");
 
-  printf("\nNome: ");
-  scanf("%s", nova->nome);
-  printf("\nCPF: ");
-  scanf("%s", nova->cpf);
-  printf("\nData do evento: ");
-  scanf("%s", nova->data);
+//   printf("\nNome: ");
+//   scanf("%s", nova->nome);
+//   printf("\nCPF: ");
+//   scanf("%s", nova->cpf);
+//   printf("\nData do evento: ");
+//   scanf("%s", nova->data);
 
-  buscar_cpf(lista1, novo_elemento(lista1));
+//   buscar_e_inserir_cpf(lista1, novo_elemento(lista1));
 
-  return nova;
-}
+//   return nova;
+// }
 void inserir_fim(lista *lista1, celula *nova)
 {
   if ((lista1 == NULL) || (nova == NULL))
@@ -385,6 +384,8 @@ void imprimir_pelo_cpf(lista *lista_ingressos, char *cpf_2)
 
     return;
   }
+  printf("todos os eventos nesse cpf\n");
+
   celula *aux = lista_ingressos->cabeca;
   while (aux != NULL)
   {
@@ -392,7 +393,6 @@ void imprimir_pelo_cpf(lista *lista_ingressos, char *cpf_2)
     if ((strcmp(aux->cpf, cpf_2) == 0))
     {
 
-      printf("todos os eventos nesse cpf\n");
       printf("\n%s -> ", aux->nome);
       printf("\n%s -> ", aux->cpf);
       printf("\n%s -> ", aux->data);
@@ -459,7 +459,7 @@ int main()
     switch (opc)
     {
     case 1:
-      buscar_cpf(cabeca, nova_celula());
+      buscar_e_inserir_cpf(cabeca, nova_celula());
       break;
 
     case 2:
@@ -467,32 +467,19 @@ int main()
       break;
 
     case 3:
-
-      break;
-
-    case 4:
-    case 5:
       printf("Ingressos oredenados");
       insertion_sort(cabeca);
       imprimir(cabeca);
       printf("\n");
-
       printf("Informe o cpf que deseja buscar");
       scanf("%s", cpf);
-
       imprimir_pelo_cpf(cabeca, cpf);
       break;
-    case 6:
-   
-      break;
-    case 7:
 
-      break;
-    case 8:
+    case 4:
       quickSort(cabeca);
       imprimir(cabeca);
       data(cabeca);
-
       break;
 
     case 0:
