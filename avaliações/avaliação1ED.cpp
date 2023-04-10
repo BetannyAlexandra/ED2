@@ -9,7 +9,7 @@ typedef struct cel
   char cpf[12];
   char data[20];
   struct cel *prox;
-  int cont=0;
+  int cont = 0;
 } celula;
 typedef struct lista
 {
@@ -35,9 +35,9 @@ void imprimir(lista *lista1)
 
   while (aux != NULL)
   {
-    printf("||%s -> ", aux->nome);
-    printf("%s -> ", aux->cpf);
-    printf("%s -> ||", aux->data);
+    printf("\nnome:%s -> ", aux->nome);
+    printf(" cpf:%s -> ", aux->cpf);
+    printf("data do evento:%s -> \n", aux->data);
     aux = aux->prox;
   }
 
@@ -48,13 +48,13 @@ celula *nova_celula()
   celula *nova = new celula;
   nova->prox = NULL;
 
-  printf("\nCadastro de comprador: ");
+  printf("\nCadastro para Evento: ");
 
   printf("\nNome: ");
   scanf("%s", nova->nome);
   printf("\nCPF: ");
   scanf("%s", nova->cpf);
-  printf("\nData do evento: ");
+  printf("\nData do evento (ano/mes/dia): ");
   scanf("%s", nova->data);
   return nova;
 }
@@ -104,18 +104,6 @@ bool cpf_data(lista *lista1, char *cpf, char *data)
     aux = aux->prox;
   }
   return false;
-}
-
-int length(lista *lista1)
-{
-  celula *aux = lista1->cabeca;
-  int cont = 0;
-  while (aux != NULL)
-  {
-    aux = aux->prox;
-    cont++;
-  }
-  return cont;
 }
 
 void buscar_e_inserir_cpf(lista *lista_ingressos, celula *novo_ingresso)
@@ -204,103 +192,14 @@ void remover(lista *lista1, celula *elemento)
   }
   elemento->prox = NULL;
 }
-
-celula *pos(lista *lista1, int pos)
-{
-  celula *aux = lista1->cabeca;
-  int cont = 0;
-  while (aux != NULL)
-  {
-    if (cont == pos)
-    {
-      return aux;
-    }
-    aux = aux->prox;
-    cont++;
-  }
-  return NULL;
-}
-void troca_pos(lista *lista1, celula *cel1, celula *cel2)
-{
-
-  if ((cel1 == NULL) || (cel2 == NULL))
-    return;
-
-  celula *ant1 = NULL;
-  celula *ant2 = NULL;
-
-  celula *tmp = NULL;
-
-  if (cel1 == lista1->fim)
-  {
-    lista1->fim = cel2;
-  }
-  else if (cel2 == lista1->fim)
-  {
-    lista1->fim = cel1;
-  }
-
-  if ((lista1->cabeca == cel2) || (cel2->prox == cel1))
-  {
-    tmp = cel2;
-    cel2 = cel1;
-    cel1 = tmp;
-  }
-
-  if (lista1->cabeca != cel1)
-  {
-    ant1 = prev(lista1, cel1);
-  }
-
-  ant2 = prev(lista1, cel2);
-
-  if (cel1 != cel2)
-  {
-    tmp = cel2->prox;
-
-    if (ant1 != NULL)
-    {
-      ant1->prox = cel2;
-    }
-
-    if (cel1 != ant2)
-    {
-      ant2->prox = cel1;
-      cel2->prox = cel1->prox;
-
-      if (cel2->prox == cel1)
-      {
-        cel1->prox = cel2;
-      }
-      else
-      {
-        cel1->prox = tmp;
-      }
-    }
-    else
-    {
-      cel2->prox = cel1;
-      cel1->prox = tmp;
-    }
-
-    if (lista1->cabeca == cel1)
-    {
-      lista1->cabeca = cel2;
-    }
-  }
-}
-
 void imprimir_menu()
 {
   printf("\n\n");
   printf("*******\t\tMENU\t********\n");
-  printf("*\t1 - Inserir nome\t*\n");
-  printf("*\t2 - Imprimir \t*\n");
-  printf("*\t3 - Bubble sort \t*\n");
-  printf("*\t4 - Selection sort \t*\n");
-  printf("*\t5 - Insertion sort \t*\n");
-  printf("*\t6 - Shuffle \t*\n");
-  printf("*\t7 - Merge sort \t*\n");
+  printf("*\t1 - Adicionar novo Evento\t*\n");
+  printf("*\t2 - Imprimir todos os ingressos \t*\n");
+  printf("*\t3 - Ordenar e contar ingressos por data\t*\n");
+  printf("*\t4 - Buscar Ingressos por cpf\t*\n");
   printf("*\t0 - Sair\t\t*\n");
 }
 void troca_insertion(lista *lista1, celula *aux, celula *troca, celula *proximo, celula *anterior)
@@ -422,7 +321,7 @@ void copiar_elemento(lista *lista1, celula *elemento)
   celula *nova = new celula;
   strcpy(nova->data, elemento->data);
   nova->cont = 1;
-  inserir_inicio(lista1, elemento);
+  inserir_inicio(lista1, nova);
 }
 
 void data(lista *lista1)
@@ -430,7 +329,6 @@ void data(lista *lista1)
 
   celula *aux = lista1->cabeca;
   lista *datas_contadas = new lista;
-
 
   while (aux != NULL)
   {
@@ -467,8 +365,6 @@ int main()
   lista *cabeca = new lista;
   char cpf[20];
 
-  srand(time(NULL));
-
   int opc = 1;
   while (opc != 0)
   {
@@ -486,19 +382,21 @@ int main()
       break;
 
     case 3:
+
+      quickSort(cabeca);
+      imprimir(cabeca);
+      data(cabeca);
+      break;
+
+    case 4:
+
       printf("Ingressos oredenados");
       insertion_sort(cabeca);
-      imprimir(cabeca);
+      // imprimir(cabeca);
       printf("\n");
       printf("Informe o cpf que deseja buscar");
       scanf("%s", cpf);
       imprimir_pelo_cpf(cabeca, cpf);
-      break;
-
-    case 4:
-      quickSort(cabeca);
-      imprimir(cabeca);
-      data(cabeca);
       break;
 
     case 0:
