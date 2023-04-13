@@ -198,8 +198,8 @@ void imprimir_menu()
   printf("*******\t\tMENU\t********\n");
   printf("*\t1 - Adicionar novo Evento\t*\n");
   printf("*\t2 - Imprimir todos os ingressos \t*\n");
-  printf("*\t3 - Ordenar e contar ingressos por data\t*\n");
-  printf("*\t4 - Buscar Ingressos por cpf\t*\n");
+  printf("*\t3 - Buscar Ingressos por cpf \t*\n");
+  printf("*\t4 - Ordenar e contar ingressos por data\t*\n");
   printf("*\t0 - Sair\t\t*\n");
 }
 void troca_insertion(lista *lista1, celula *aux, celula *troca, celula *proximo, celula *anterior)
@@ -383,13 +383,6 @@ int main()
 
     case 3:
 
-      quickSort(cabeca);
-      imprimir(cabeca);
-      data(cabeca);
-      break;
-
-    case 4:
-
       printf("Ingressos oredenados");
       insertion_sort(cabeca);
       // imprimir(cabeca);
@@ -397,6 +390,13 @@ int main()
       printf("Informe o cpf que deseja buscar");
       scanf("%s", cpf);
       imprimir_pelo_cpf(cabeca, cpf);
+      break;
+
+    case 4:
+
+      quickSort(cabeca);
+      imprimir(cabeca);
+      data(cabeca);
       break;
 
     case 0:
