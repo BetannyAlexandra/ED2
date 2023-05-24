@@ -17,7 +17,6 @@ typedef struct lista
   celula *fim = NULL;
   int tamanho = 0;
 } lista;
-
 void imprimir_cont(lista *lista1)
 {
   celula *aux = lista1->cabeca;
