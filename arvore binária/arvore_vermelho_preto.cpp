@@ -18,25 +18,11 @@ typedef struct node
   Cor cor = vermelho;
 } No;
 
-No *criar_no(int num = -1)
+No *criar_no()
 {
-  No *node = (No *)malloc(sizeof(No));
-
-  if (num == -1)
-  {
-    printf("Digite o numero: ");
-    scanf("%d", &node->num);
-    // node->num = rand() % 100;
-    printf("%d, ", node->num);
-  }
-  else
-  {
-    node->num = num;
-  }
-  node->cor = vermelho; // vermelho=1,preto=0;
-
-  node->esq = NULL;
-  node->dir = NULL;
+  No *node = new No;
+  printf("insira um numero");
+  scanf("%d", &node->num);
 
   return node;
 }
@@ -55,6 +41,7 @@ void mudar_cor(No **node)
 
 void inserir_no(No *node, No *novo)
 {
+
   if (node == NULL)
   {
     printf("Erro\n");
@@ -72,6 +59,7 @@ void inserir_no(No *node, No *novo)
     if (node->dir == NULL)
     {
       node->dir = novo;
+      novo->pai = node;
       return;
     }
     inserir_no(node->dir, novo);
@@ -81,6 +69,7 @@ void inserir_no(No *node, No *novo)
     if (node->esq == NULL)
     {
       node->esq = novo;
+      novo->pai = node;
       return;
     }
     inserir_no(node->esq, novo);
@@ -174,6 +163,24 @@ bool um_filho(No *node)
   }
 
   return false;
+}
+
+int posicao_filho(No *pai, No *filho)
+{
+
+  if (pai == NULL || filho == NULL)
+    return -1;
+
+  if (pai->esq == filho)
+  {
+    return 0;
+  }
+  else if (pai->dir == filho)
+  {
+    return 1;
+  }
+
+  return -1;
 }
 
 bool eh_folha(No *node)
@@ -295,7 +302,8 @@ void rot_simples_esq(No **raiz, No *no, bool dupla = false)
   no->dir = esq_filho;
   filho->esq = no;
 
-  if(esq_filho != NULL){
+  if (esq_filho != NULL)
+  {
     esq_filho->pai = no;
   }
 
@@ -317,7 +325,14 @@ void rot_simples_esq(No **raiz, No *no, bool dupla = false)
     }
     else
     {
-      pai->dir = filho;
+      if (pai->dir == no)
+      {
+        pai->dir = filho;
+      }
+      else
+      {
+        pai->esq = filho;
+      }
     }
   }
 }
@@ -335,7 +350,8 @@ void rot_simples_dir(No **raiz, No *no, bool dupla = false)
   no->esq = dir_filho;
   filho->dir = no;
 
-  if(dir_filho != NULL){
+  if (dir_filho != NULL)
+  {
     dir_filho->pai = no;
   }
 
@@ -356,7 +372,15 @@ void rot_simples_dir(No **raiz, No *no, bool dupla = false)
     }
     else
     {
-      pai->esq = filho;
+      if (pai->esq == no)
+      {
+
+        pai->esq = filho;
+      }
+      else
+      {
+        pai->dir = filho;
+      }
     }
   }
 }
@@ -387,7 +411,8 @@ void rot_dupla_esq(No **raiz, No *no)
 
 void balancear_pretoEvermelho(No **root, No *Node)
 {
-  if(Node == NULL) return;
+  if (Node == NULL)
+    return;
 
   if (Node == *root)
   {
@@ -401,9 +426,15 @@ void balancear_pretoEvermelho(No **root, No *Node)
     return;
   }
 
-  No *avo = pai->pai;
-  No *tio = NULL;
+  No *avo = NULL;
+  if (pai != NULL)
+  {
+    avo = pai->pai;
+  }
 
+  No *tio = NULL;
+  if(avo!=NULL)
+{
   if (pai == avo->dir)
   {
     tio = avo->esq;
@@ -411,7 +442,7 @@ void balancear_pretoEvermelho(No **root, No *Node)
   else
   {
     tio = avo->dir;
-  }
+  }}
 
   if (tio != NULL)
   {
@@ -429,37 +460,164 @@ void balancear_pretoEvermelho(No **root, No *Node)
 
   if ((pai->cor == vermelho) && (tio == NULL || tio->cor == preto))
   {
-    if ((Node == pai->esq) && (pai == avo->esq))
+    if (avo != NULL)
     {
-      pai->cor = preto;
-      avo->cor = vermelho;
-      rot_simples_dir(root, avo);
+      if ((Node == pai->esq) && (pai == avo->esq))
+      {
+        pai->cor = preto;
+        avo->cor = vermelho;
+        rot_simples_dir(root, avo);
+        return;
+      }
+
+      if ((Node == pai->dir) && (pai = avo->dir))
+      {
+        pai->cor = preto;
+        avo->cor = vermelho;
+        rot_simples_esq(root, avo);
+        return;
+      }
+
+      if ((Node == pai->dir) && (pai == avo->esq))
+      {
+        Node->cor = preto;
+        avo->cor = vermelho;
+        rot_dupla_dir(root, avo);
+        return;
+      }
+
+      if ((Node == pai->esq) && (pai == avo->dir))
+      {
+        Node->cor = preto;
+        avo->cor = vermelho;
+        rot_dupla_esq(root, avo);
+        return;
+      }
+    }
+  }
+}
+
+void balancear(No **root, No *node)
+{
+  if ((*root) == NULL)
+  {
+    return;
+  }
+  if (eh_folha((*root)))
+  {
+    (*root)->cor = preto;
+    return;
+  }
+  if (um_filho(*root))
+  {
+    if ((*root)->esq == NULL)
+    {
+      ((*root)->dir)->cor = vermelho;
+    }
+    else
+    {
+      ((*root)->esq)->cor = vermelho;
+    }
+    return;
+  }
+  balancear(root, node->dir);
+  balancear(root, node->esq);
+
+  if ((node->cor) == vermelho)
+  {
+    balancear_pretoEvermelho(root, node);
+  }
+}
+
+No *encontrarSucessor(No *no)
+{
+  No *atual = no->dir;
+
+  while (atual->esq != NULL)
+  {
+    atual = atual->esq;
+  }
+
+  return atual;
+}
+
+void remover_rubro_negro(No **root, No *node)
+{
+  if (*root == NULL)
+  {
+    return;
+  }
+  No *pai = node->pai;
+  if (eh_folha(node))
+  {
+
+    if ((*root) == node)
+    {
+      (*root) = NULL;
       return;
     }
 
-    if ((Node == pai->dir) && (pai = avo->dir))
+    No *irmao_node = NULL;
+
+    if (pai != NULL)
     {
-      pai->cor = preto;
-      avo->cor = vermelho;
-      rot_simples_esq(root,avo);
-      return;
+      if (pai->dir == node)
+      {
+        irmao_node = (pai->esq);
+      }else if ((pai->esq) == node)
+      {
+        irmao_node = (pai->dir);
+      }
     }
 
-    if ((Node == pai->dir) && (pai == avo->esq))
+    if (pai->esq == node)
     {
-      Node->cor = preto;
-      avo->cor = vermelho;
-      rot_dupla_dir(root,avo);
-      return;
+      pai->esq = NULL;
+    }
+    else
+    {
+      pai->dir = NULL;
+    }
+    node->pai = NULL;
+
+    if (irmao_node != NULL)
+    {
+      if (node->cor == vermelho)
+      {
+        return;
+      }
+    }
+    if (irmao_node == NULL || irmao_node->cor == preto)
+    {
+      if (irmao_node == NULL || eh_folha(irmao_node))
+      {
+        if (pai != (*root))
+        {
+
+          mudar_cor(&pai);
+        }
+        mudar_cor(&irmao_node);
+        return;
+      }
+      if (irmao_node->esq->cor == vermelho)
+      {
+        irmao_node->esq->cor = preto;
+        rot_simples_dir(root, pai);
+        return;
+      }
+      else if (irmao_node->dir->cor == vermelho)
+      {
+        irmao_node->dir->cor = preto;
+        rot_simples_esq(root, pai);
+        return;
+      }
+    }
+    if(irmao_node->cor==vermelho){
+      if(posicao_filho()){
+
+      }
     }
 
-    if ((Node == pai->esq) && (pai == avo->dir))
-    {
-      Node->cor = preto;
-      avo->cor = vermelho;
-      rot_dupla_esq(root,avo);
-      return;
-    }
   }
 }
 
@@ -468,8 +626,8 @@ int main()
 
   srand(time(NULL));
 
-  No *no = criar_no(2);
-  No *root = no;
+  // No *no = criar_no(2);
+  No *root = NULL;
 
   // imprimir(root);
   // printf("================\n");
@@ -485,6 +643,7 @@ int main()
     {
     case 1:
       inserir_raiz(&root);
+      balancear(&root, root);
       break;
     case 2:
       buscar_raiz(root);
