@@ -433,16 +433,17 @@ void balancear_pretoEvermelho(No **root, No *Node)
   }
 
   No *tio = NULL;
-  if(avo!=NULL)
-{
-  if (pai == avo->dir)
+  if (avo != NULL)
   {
-    tio = avo->esq;
+    if (pai == avo->dir)
+    {
+      tio = avo->esq;
+    }
+    else
+    {
+      tio = avo->dir;
+    }
   }
-  else
-  {
-    tio = avo->dir;
-  }}
 
   if (tio != NULL)
   {
@@ -564,7 +565,8 @@ void remover_rubro_negro(No **root, No *node)
       if (pai->dir == node)
       {
         irmao_node = (pai->esq);
-      }else if ((pai->esq) == node)
+      }
+      else if ((pai->esq) == node)
       {
         irmao_node = (pai->dir);
       }
@@ -612,12 +614,200 @@ void remover_rubro_negro(No **root, No *node)
         return;
       }
     }
-    if(irmao_node->cor==vermelho){
-      if(posicao_filho()){
-
+    if (irmao_node->cor == vermelho)
+    {
+      if (posicao_filho(pai, irmao_node) == 0)
+      {
+        if (irmao_node->pai->cor == preto)
+        {
+          irmao_node->dir->cor = vermelho;
+        }
+        rot_simples_dir(root, pai);
       }
+      else if (posicao_filho(pai, irmao_node) == 1)
+      {
+        if (irmao_node->pai->cor == preto)
+        {
+          irmao_node->esq->cor = vermelho;
+        }
+        rot_simples_esq(root, pai);
+      }
+      return;
     }
+  }
+  if (um_filho(node))
+  {
+    if (node == *root)
+    {
+      if (node->esq != NULL)
+      {
+        *root = node->esq;
+        node->esq->pai = NULL;
+      }
+      else if (node->dir != NULL)
+      {
+        *root = node->dir;
+        node->dir->pai = NULL;
+      }
+      pai->esq->cor = node->cor;
+      node->esq = node->dir;
+      node->dir = node->pai;
+      node->pai = NULL;
+      return;
+    }
+    if (pai->esq == node)
+    {
+      if (node->esq != NULL)
+      {
+        pai->esq = node->esq;
+        node->esq->pai = pai;
+      }
+      else if (node->dir != NULL)
+      {
+        pai->esq = node->dir;
+        node->dir->pai = pai;
+      }
+      pai->esq->cor = node->cor;
+      node->esq = node->dir;
+      node->dir = node->pai;
+      node->pai = NULL;
+      return;
+    }
+    else if (pai->dir == node)
+    {
+      if (node->esq != NULL)
+      {
+        pai->dir = node->esq;
+        node->esq->pai = pai;
+      }
+      else if (pai->dir != NULL)
+      {
+        pai->dir = node->dir;
+        node->dir->pai = pai;
+      }
+      pai->dir->cor = node->cor;
+      node->esq = node->dir;
+      node->dir = node->pai;
+      node->pai = NULL;
+      return;
+    }
+  }  No *substituto = NULL;
 
+  if (remover->esq != NULL)
+  {
+    substituto = maior(remover->esq);
+  }
+  else if (remover->dir != NULL)
+  {
+    substituto = menor(remover->dir);
+  }
+
+  No *irmao_substituto = irmao(substituto->pai, substituto);
+  int cor_remover = substituto->cor;
+
+  remover_no(root, substituto);
+
+  substituto->pai = pai_remover;
+  substituto->cor = remover->cor;
+
+  substituto->esq = remover->esq;
+
+  if (remover->esq != NULL)
+  {
+    remover->esq->pai = substituto;
+  }
+
+  substituto->dir = remover->dir;
+
+  if (remover->dir != NULL)
+  {
+    remover->dir->pai = substituto;
+  }
+
+  remover->esq = remover->dir = remover->pai = NULL;
+
+  if (remover == (*root))
+  {
+    (*root) = substituto;
+  }
+  else
+  {
+    if (posicao_filho(pai_remover, remover) == 0)
+    { // remover esta na esquerda do pai
+      pai_remover->esq = substituto;
+    }
+    else if (posicao_filho(pai_remover, remover) == 1)
+    { // remover esta na direita do pai
+      pai_remover->dir = substituto;
+    }
+  }
+
+  // casos de balanceamento
+
+  // remoção de nó vermelho nao faz nada
+  if (cor_remover == vermelho)
+    return;
+
+  No *pai_substituto = irmao_substituto->pai;
+  // irmão preto, sem filhos
+  //   recolorir pai e irmão
+  if (irmao_substituto == NULL || irmao_substituto->cor == preto)
+  {
+    if (irmao_substituto == NULL || eh_folha(irmao_substituto))
+    {
+      if (pai_substituto != (*root))
+      {
+        trocar_cor(pai_substituto);
+      }
+      trocar_cor(irmao_substituto);
+      return;
+    }
+    if (irmao_substituto->esq->cor == vermelho)
+    {
+      if (pai_substituto->cor == preto)
+      {
+        irmao_substituto->esq->cor = preto;
+      }
+      else
+      {
+        irmao_substituto->esq->cor = vermelho;
+      }
+      rot_simples_dir(root, pai_substituto);
+      return;
+    }
+    else if (irmao_substituto->dir->cor == vermelho)
+    {
+      if (pai_substituto->cor == preto)
+      {
+        irmao_substituto->dir->cor = preto;
+      }
+      else
+      {
+        irmao_substituto->dir->cor = vermelho;
+      }
+      rot_simples_esq(root, pai_substituto);
+      return;
+    }
+  }
+  if (irmao_substituto->cor == vermelho)
+  {
+    if (posicao_filho(pai_substituto, irmao_substituto) == 0)
+    {
+      if (irmao_substituto->pai->cor == preto)
+      {
+        irmao_substituto->dir->cor = vermelho;
+      }
+      rot_simples_dir(root, pai_substituto);
+    }
+    else if (posicao_filho(pai_substituto, irmao_substituto) == 1)
+    {
+      if (irmao_substituto->pai->cor == preto)
+      {
+        irmao_substituto->esq->cor = vermelho;
+      }
+      rot_simples_esq(root, irmao_substituto->pai);
+    }
+    return;
   }
 }
 
