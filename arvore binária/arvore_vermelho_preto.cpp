@@ -719,19 +719,7 @@ void remover_rubro_negro(No **root, No *node)
 
   substituto->dir = remover->dir;
 
-  if (remover->dir != NULL)
-  {
-    remover->dir->pai = substituto;
-  }
-
-  remover->esq = remover->dir = remover->pai = NULL;
-
-  if (remover == (*root))
-  {
-    (*root) = substituto;
-  }
-  else
-  {
+  if (remov
     if (posicao_filho(pai_remover, remover) == 0)
     { // remover esta na esquerda do pai
       pai_remover->esq = substituto;
