@@ -21,9 +21,8 @@ typedef struct node
 No *criar_no()
 {
   No *node = new No;
-  printf("insira um numero");
+  printf("insira um numero: ");
   scanf("%d", &node->num);
-
   return node;
 }
 
@@ -121,16 +120,15 @@ void imprimir(No *node, int tab = 0)
   imprimir(node->esq, tab + 1);
 }
 
-void inserir_raiz(No **raiz)
+void inserir_raiz(No **raiz, No *node)
 {
   if (*raiz == NULL)
   {
-    *raiz = criar_no();
+    *raiz = node;
     (*raiz)->cor = preto;
     return;
   }
-  No *novo = criar_no();
-  inserir_no(*raiz, novo);
+  inserir_no(*raiz, node);
 }
 
 void buscar_raiz(No *raiz)
@@ -282,12 +280,6 @@ void menu()
   printf("10-Imprimir FB\n");
   printf("0-Sair\n");
 }
-
-// void arvore_aleatoria(No **root) {
-//   for (int i = 0; i < 10; i++) {
-//     inserir_raiz(root);
-//   }
-// }
 
 void rot_simples_esq(No **raiz, No *no, bool dupla = false)
 {
@@ -504,6 +496,9 @@ void balancear(No **root, No *node)
   {
     return;
   }
+  if(node == NULL){
+    return;
+  }
   if (eh_folha((*root)))
   {
     (*root)->cor = preto;
@@ -532,16 +527,86 @@ void balancear(No **root, No *node)
 
 No *encontrarSucessor(No *no)
 {
-  No *atual = no->dir;
+  No *atual = no->esq;
 
-  while (atual->esq != NULL)
+  while (atual->dir!= NULL)
   {
-    atual = atual->esq;
+    atual = atual->dir;
   }
 
   return atual;
 }
 
+void remover_substituto(No **root, No *substituto)
+{
+  if ((*root) == NULL)
+  {
+    return;
+  }
+  No *pai_substituto = substituto->pai;
+  if (eh_folha(substituto))
+  {
+
+    if ((*root) == substituto)
+    {
+      (*root) = NULL;
+      return;
+    }
+    if (pai_substituto->esq == substituto)
+    {
+      pai_substituto->esq = NULL;
+    }
+    else
+    {
+      pai_substituto->dir = NULL;
+    }
+    substituto->pai = NULL;
+    return;
+  }
+  if (um_filho(substituto))
+  {
+
+    if (pai_substituto->esq == substituto)
+    {
+      if (substituto->esq != NULL)
+      {
+        pai_substituto->esq = substituto->esq;
+        substituto->esq->pai = pai_substituto;
+      }
+      else if (pai_substituto->dir == substituto)
+      {
+        if (substituto->dir != NULL)
+        {
+          pai_substituto->esq = substituto->dir;
+          substituto->dir->pai = pai_substituto;
+        }
+      }
+      substituto->esq = NULL;
+      substituto->dir = NULL;
+      substituto->pai = NULL;
+      return;
+    }
+    else if (pai_substituto->dir == substituto)
+    {
+      if (substituto->esq != NULL)
+      {
+        pai_substituto->dir = substituto->esq;
+        pai_substituto->dir->cor = substituto->cor;
+        substituto->esq->pai = pai_substituto;
+      }
+      else if (substituto->dir != NULL)
+      {
+        pai_substituto->dir = substituto->dir;
+        pai_substituto->dir->cor = substituto->cor;
+        substituto->dir->pai = pai_substituto;
+      }
+      substituto->esq = NULL;
+      substituto->dir = NULL;
+      substituto->pai = NULL;
+      return;
+    }
+  }
+}
 void remover_rubro_negro(No **root, No *node)
 {
   if (*root == NULL)
@@ -604,13 +669,27 @@ void remover_rubro_negro(No **root, No *node)
       if (irmao_node->esq->cor == vermelho)
       {
         irmao_node->esq->cor = preto;
-        rot_simples_dir(root, pai);
+        if (posicao_filho(irmao_node->pai, irmao_node) == 1)
+        {
+          rot_simples_esq(root, pai);
+        }
+        else
+        {
+          rot_simples_dir(root, pai);
+        }
         return;
       }
       else if (irmao_node->dir->cor == vermelho)
       {
         irmao_node->dir->cor = preto;
-        rot_simples_esq(root, pai);
+        if (posicao_filho(irmao_node->pai, irmao_node) == 1)
+        {
+          rot_simples_esq(root, pai);
+        }
+        else
+        {
+          rot_simples_dir(root, pai);
+        }
         return;
       }
     }
@@ -650,8 +729,8 @@ void remover_rubro_negro(No **root, No *node)
         node->dir->pai = NULL;
       }
       pai->esq->cor = node->cor;
-      node->esq = node->dir;
-      node->dir = node->pai;
+      node->esq = NULL;
+      node->dir = NULL;
       node->pai = NULL;
       return;
     }
@@ -668,8 +747,8 @@ void remover_rubro_negro(No **root, No *node)
         node->dir->pai = pai;
       }
       pai->esq->cor = node->cor;
-      node->esq = node->dir;
-      node->dir = node->pai;
+      node->esq = NULL;
+      node->dir = NULL;
       node->pai = NULL;
       return;
     }
@@ -686,116 +765,136 @@ void remover_rubro_negro(No **root, No *node)
         node->dir->pai = pai;
       }
       pai->dir->cor = node->cor;
-      node->esq = node->dir;
-      node->dir = node->pai;
+      node->esq = NULL;
+      node->dir = NULL;
       node->pai = NULL;
       return;
     }
-  }  No *substituto = NULL;
-
-  if (remover->esq != NULL)
-  {
-    substituto = maior(remover->esq);
-  }
-  else if (remover->dir != NULL)
-  {
-    substituto = menor(remover->dir);
   }
 
-  No *irmao_substituto = irmao(substituto->pai, substituto);
-  int cor_remover = substituto->cor;
+  No *node_substituir = encontrarSucessor(node);
+  No *irmao_substituto = NULL;
 
-  remover_no(root, substituto);
-
-  substituto->pai = pai_remover;
-  substituto->cor = remover->cor;
-
-  substituto->esq = remover->esq;
-
-  if (remover->esq != NULL)
+  if (node_substituir->pai != NULL)
   {
-    remover->esq->pai = substituto;
-  }
-
-  substituto->dir = remover->dir;
-
-  if (remov
-    if (posicao_filho(pai_remover, remover) == 0)
-    { // remover esta na esquerda do pai
-      pai_remover->esq = substituto;
+    if (node_substituir->pai->dir == node_substituir)
+    {
+      irmao_substituto = (node_substituir->pai->esq);
     }
-    else if (posicao_filho(pai_remover, remover) == 1)
-    { // remover esta na direita do pai
-      pai_remover->dir = substituto;
+    else if ((node_substituir->pai->esq) == node_substituir)
+    {
+      irmao_substituto = (node_substituir->pai->dir);
     }
   }
+  Cor cor_substituto = node_substituir->cor;
+  remover_substituto(root, node_substituir);
+  node_substituir->pai = pai;
+  node_substituir->cor = node->cor;
+  node_substituir->esq = node->esq;
 
-  // casos de balanceamento
-
-  // remoção de nó vermelho nao faz nada
-  if (cor_remover == vermelho)
+  if (node->esq != NULL)
+  {
+    node->esq->pai = node_substituir;
+  }
+  node_substituir->dir = node->dir;
+  if (node->dir != NULL)
+  {
+    node->dir->pai = node_substituir;
+  }
+  node->esq = NULL;
+  node->dir = NULL;
+  node->pai = NULL;
+  if (node == (*root))
+  {
+    (*root) = node_substituir;
+  }
+  else
+  {
+    if (posicao_filho(pai, node) == 0)
+    {
+      pai->esq = node_substituir;
+    }
+    else if (posicao_filho(pai, node) == 1)
+    {
+      pai->dir = node_substituir;
+    }
+  }
+  if (cor_substituto == vermelho)
+  {
     return;
-
-  No *pai_substituto = irmao_substituto->pai;
-  // irmão preto, sem filhos
-  //   recolorir pai e irmão
-  if (irmao_substituto == NULL || irmao_substituto->cor == preto)
-  {
-    if (irmao_substituto == NULL || eh_folha(irmao_substituto))
+    No *pai_substituto = irmao_substituto->pai;
+    if (irmao_substituto == NULL || irmao_substituto->cor == preto)
     {
-      if (pai_substituto != (*root))
+      if (irmao_substituto == NULL || eh_folha(irmao_substituto))
       {
-        trocar_cor(pai_substituto);
+        if (pai_substituto != (*root))
+        {
+          mudar_cor(&pai_substituto);
+        }
+        mudar_cor(&irmao_substituto);
+        return;
       }
-      trocar_cor(irmao_substituto);
+      if (irmao_substituto->esq->cor == vermelho)
+      {
+        if (pai_substituto->cor == preto)
+        {
+          irmao_substituto->esq->cor = preto;
+        }
+        else
+        {
+          irmao_substituto->esq->cor = vermelho;
+        }
+        if (posicao_filho(irmao_substituto->pai, irmao_substituto) == 1)
+        {
+          rot_simples_esq(root, pai);
+        }
+        else
+        {
+          rot_simples_dir(root, pai);
+        }
+        return;
+      }
+      else if (irmao_substituto->dir->cor == vermelho)
+      {
+        if (pai_substituto->cor == preto)
+        {
+          irmao_substituto->dir->cor = preto;
+        }
+        else
+        {
+          irmao_substituto->dir->cor = vermelho;
+        }
+        if (posicao_filho(irmao_substituto->pai, irmao_substituto) == 1)
+        {
+          rot_simples_esq(root, pai);
+        }
+        else
+        {
+          rot_simples_dir(root, pai);
+        }
+        return;
+      }
+    }
+    if (irmao_substituto->cor == vermelho)
+    {
+      if (posicao_filho(pai_substituto, irmao_substituto) == 0)
+      {
+        if (irmao_substituto->pai->cor == preto)
+        {
+          irmao_substituto->dir->cor = vermelho;
+        }
+        rot_simples_dir(root, pai_substituto);
+      }
+      else if (posicao_filho(pai_substituto, irmao_substituto) == 1)
+      {
+        if (irmao_substituto->pai->cor == preto)
+        {
+          irmao_substituto->esq->cor = vermelho;
+        }
+        rot_simples_esq(root, irmao_substituto->pai);
+      }
       return;
     }
-    if (irmao_substituto->esq->cor == vermelho)
-    {
-      if (pai_substituto->cor == preto)
-      {
-        irmao_substituto->esq->cor = preto;
-      }
-      else
-      {
-        irmao_substituto->esq->cor = vermelho;
-      }
-      rot_simples_dir(root, pai_substituto);
-      return;
-    }
-    else if (irmao_substituto->dir->cor == vermelho)
-    {
-      if (pai_substituto->cor == preto)
-      {
-        irmao_substituto->dir->cor = preto;
-      }
-      else
-      {
-        irmao_substituto->dir->cor = vermelho;
-      }
-      rot_simples_esq(root, pai_substituto);
-      return;
-    }
-  }
-  if (irmao_substituto->cor == vermelho)
-  {
-    if (posicao_filho(pai_substituto, irmao_substituto) == 0)
-    {
-      if (irmao_substituto->pai->cor == preto)
-      {
-        irmao_substituto->dir->cor = vermelho;
-      }
-      rot_simples_dir(root, pai_substituto);
-    }
-    else if (posicao_filho(pai_substituto, irmao_substituto) == 1)
-    {
-      if (irmao_substituto->pai->cor == preto)
-      {
-        irmao_substituto->esq->cor = vermelho;
-      }
-      rot_simples_esq(root, irmao_substituto->pai);
-    }
-    return;
   }
 }
 
@@ -804,15 +903,11 @@ int main()
 
   srand(time(NULL));
 
-  // No *no = criar_no(2);
   No *root = NULL;
 
-  // imprimir(root);
-  // printf("================\n");
-  // balancear(&root, root);
-  // imprimir(root);
-
   int opc = 1;
+  int num = 0;
+  No *node = NULL;
   while (opc != 0)
   {
     menu();
@@ -820,7 +915,9 @@ int main()
     switch (opc)
     {
     case 1:
-      inserir_raiz(&root);
+      node = criar_no();
+      inserir_raiz(&root, node);
+      balancear_pretoEvermelho(&root, node);
       balancear(&root, root);
       break;
     case 2:
@@ -828,17 +925,20 @@ int main()
       break;
     case 3:
       imprimir(root);
-      // balancear(&root, root);
-      // printf("------------------------------------------------");
-      // imprimir(root);
+      break;
+    case 4:
+      printf("insira um numero pra remover: ");
+      scanf("%d",&num);
+      node = buscar_no(root,num);
+      remover_rubro_negro(&root,node);
+      balancear(&root, root);
       break;
     case 5:
       balancear_pretoEvermelho(&root, root);
       imprimir(root);
       break;
     case 6:
-      printf("Maior:%d, Menor:%d, Média:%.2f\n", maior(root)->num,
-             menor(root)->num, media(root));
+      printf("Maior:%d, Menor:%d, Média:%.2f\n", maior(root)->num,menor(root)->num, media(root));
       break;
     case 7:
       printf("Altura: %d\n", altura(root));
