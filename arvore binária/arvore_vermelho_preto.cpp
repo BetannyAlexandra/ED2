@@ -437,9 +437,9 @@ void balancear_pretoEvermelho(No **root, No *Node)
     }
   }
 
-  if (tio != NULL)
+  if (tio != NULL) 
   {
-    if ((pai->cor == vermelho) && (tio->cor == vermelho))
+    if ((pai->cor == vermelho) && (tio->cor == vermelho)) //se o pai e o tio forem vermelhos mudamos a cor para preto e o novo nó continua vermelho, e se o avô não for a raiz colorimos para vermelho tambem
     {
       pai->cor = preto;
       tio->cor = preto;
@@ -452,11 +452,11 @@ void balancear_pretoEvermelho(No **root, No *Node)
   }
 
   if ((pai->cor == vermelho) && (tio == NULL || tio->cor == preto))
-  {
+  { //Se o pai for vermelho e o tio for preto é necessária fazer uma rotação
     if (avo != NULL)
     {
       if ((Node == pai->esq) && (pai == avo->esq))
-      {
+      { //se o nó for o filho da esquerda e o pai dele for um filho da esquerda então fazemos uma rotação a direita a partir do avô
         pai->cor = preto;
         avo->cor = vermelho;
         rot_simples_dir(root, avo);
@@ -464,7 +464,7 @@ void balancear_pretoEvermelho(No **root, No *Node)
       }
 
       if ((Node == pai->dir) && (pai = avo->dir))
-      {
+      {//se o nó for o filho da direita e o pai dele for um filho da direita então fazemos uma rotação a esquerda a partir do avô
         pai->cor = preto;
         avo->cor = vermelho;
         rot_simples_esq(root, avo);
@@ -472,7 +472,7 @@ void balancear_pretoEvermelho(No **root, No *Node)
       }
 
       if ((Node == pai->dir) && (pai == avo->esq))
-      {
+      {////se o nó for o filho da direita e o pai dele for um filho da esquerda então fazemos uma rotação dupla a direita a partir do avô
         Node->cor = preto;
         avo->cor = vermelho;
         rot_dupla_dir(root, avo);
@@ -480,7 +480,7 @@ void balancear_pretoEvermelho(No **root, No *Node)
       }
 
       if ((Node == pai->esq) && (pai == avo->dir))
-      {
+      {//se o nó for o filho da esquerda e o pai dele for um filho da direita então fazemos uma rotação dupla a esquerda a partir do avô
         Node->cor = preto;
         avo->cor = vermelho;
         rot_dupla_esq(root, avo);
